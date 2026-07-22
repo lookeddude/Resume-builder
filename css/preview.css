@@ -1,0 +1,201 @@
+/* =============================================
+   PREVIEW.CSS – Preview pane, toolbar, states
+   ============================================= */
+
+/* ─── Preview Toolbar ─── */
+.preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+  flex-shrink: 0;
+  min-height: 52px;
+}
+.preview-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.preview-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gray-500);
+}
+.live-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.2);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
+  50%       { box-shadow: 0 0 0 6px rgba(16,185,129,0.08); }
+}
+
+/* ─── Toolbar Buttons ─── */
+.btn-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+#btnDownloadPDF {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  color: var(--white);
+  box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+}
+#btnDownloadPDF:hover {
+  box-shadow: 0 4px 16px rgba(37,99,235,0.4);
+  transform: translateY(-1px);
+}
+#btnDownloadPDF:active { transform: translateY(0); }
+
+/* ─── Preview Area ─── */
+.preview-area {
+  flex: 1;
+  min-height: 0;            /* crucial: lets flex child shrink in a column flex */
+  overflow-y: auto;
+  overflow-x: hidden;       /* JS scaling keeps pages within bounds */
+  padding: var(--space-6) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ─── Resume Preview Wrapper ─── */
+.resume-preview-wrapper {
+  width: 100%;
+  animation: previewIn 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+@keyframes previewIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Output container – transparent; pages carry their own card styles */
+#resumeOutput {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ─── Individual A4 page frame (794 × 1123 px = A4 at 96 dpi) ─── */
+.preview-page {
+  width: 794px;
+  height: 1123px;
+  overflow: hidden;
+  position: relative;
+  background: #ffffff;
+  box-shadow: 0 4px 28px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.06);
+  border-radius: 3px;
+  flex-shrink: 0;
+  /* JS sets transform + marginBottom for responsive scaling */
+  transform-origin: top center;
+  animation: pageIn 0.35s ease;
+}
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(10px) scale(var(--pg-scale, 1)); }
+  to   { opacity: 1; transform: translateY(0)    scale(var(--pg-scale, 1)); }
+}
+
+/* Inner clone – offset by JS to show this page's slice only */
+.preview-page-inner {
+  position: absolute;
+  left: 0;
+  width: 794px;
+  overflow: visible;
+  /* top set inline per page: -(pageIndex × 1123)px */
+}
+
+/* ─── Page gap separator ─── */
+.preview-page-gap {
+  width: 794px;
+  height: 20px;
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: top center;
+  /* JS applies scale + marginBottom to match pages */
+}
+.preview-page-gap::before {
+  content: '';
+  position: absolute;
+  inset: 9px 0;
+  border-top: 1.5px dashed var(--gray-300);
+}
+.preview-page-gap::after {
+  content: '· · ·';
+  font-size: 0.7rem;
+  color: var(--gray-400);
+  background: var(--gray-100);
+  padding: 0 var(--space-3);
+  position: relative;
+  letter-spacing: 4px;
+}
+
+/* ─── Responsive tweaks ─── */
+@media (max-width: 768px) {
+  .preview-toolbar { padding: var(--space-2) var(--space-3); }
+  .preview-area    { padding: var(--space-2); }
+}
+
+
+/* ─── Empty State ─── */
+.preview-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-12) var(--space-8);
+  gap: var(--space-4);
+  animation: fadeIn 0.5s ease;
+  max-width: 360px;
+  margin: auto;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.empty-illustration {
+  background: var(--primary-bg);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.preview-empty-state h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gray-700);
+}
+.preview-empty-state p {
+  font-size: 0.9rem;
+  color: var(--gray-500);
+  line-height: 1.6;
+}
+.preview-empty-state strong { color: var(--primary); }
+

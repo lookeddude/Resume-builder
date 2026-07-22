@@ -1,0 +1,343 @@
+/* =============================================
+   TEMPLATES.CSS – Resume template base styles
+   These apply inside #resumeOutput for the preview.
+   Templates also use inline styles for PDF fidelity.
+   ============================================= */
+
+/* ─── Shared template reset ─── */
+#resumeOutput * { box-sizing: border-box; }
+#resumeOutput { font-family: 'Inter', sans-serif; }
+
+/* ===========================================================
+   TEMPLATE 1 – SIMPLE (Clean B&W)
+   =========================================================== */
+.tpl1-root {
+  padding: 48px 56px;
+  background: #ffffff;
+  font-family: 'Merriweather', Georgia, serif;
+  font-size: 11pt;
+  color: #1a1a1a;
+  line-height: 1.6;
+  min-height: 297mm;
+}
+.tpl1-header { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #1a1a1a; }
+.tpl1-name {
+  font-size: 26pt;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+  color: #0a0a0a;
+}
+.tpl1-title {
+  font-size: 12pt;
+  font-weight: 400;
+  color: #444;
+  margin-bottom: 8px;
+}
+.tpl1-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-size: 9.5pt;
+  color: #555;
+  font-family: 'Inter', sans-serif;
+}
+.tpl1-contact span { display: flex; align-items: center; gap: 5px; }
+.tpl1-section { margin-bottom: 18px; }
+.tpl1-section-title {
+  font-size: 11pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: #0a0a0a;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #ccc;
+  font-family: 'Inter', sans-serif;
+}
+.tpl1-summary {
+  font-size: 10pt;
+  color: #333;
+  line-height: 1.7;
+}
+.tpl1-entry { margin-bottom: 12px; }
+.tpl1-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 3px;
+}
+.tpl1-entry-title {
+  font-weight: 700;
+  font-size: 10.5pt;
+  color: #111;
+}
+.tpl1-entry-period {
+  font-size: 9pt;
+  color: #666;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+}
+.tpl1-entry-sub {
+  font-size: 9.5pt;
+  font-style: italic;
+  color: #555;
+  margin-bottom: 4px;
+}
+.tpl1-entry-desc {
+  font-size: 9.5pt;
+  color: #333;
+  line-height: 1.6;
+}
+.tpl1-entry-desc ul { padding-left: 16px; list-style: disc; }
+.tpl1-skills-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+.tpl1-skill {
+  font-size: 9pt;
+  font-family: 'Inter', sans-serif;
+  padding: 3px 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  color: #333;
+  background: #fafafa;
+}
+
+/* ===========================================================
+   TEMPLATE 2 – MODERN (Blue accent)
+   =========================================================== */
+.tpl2-root {
+  font-family: 'Inter', sans-serif;
+  background: #ffffff;
+  font-size: 10.5pt;
+  color: #1e293b;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  min-height: 297mm;
+}
+.tpl2-header {
+  background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%);
+  padding: 40px 52px 36px;
+  color: white;
+}
+.tpl2-name {
+  font-size: 28pt;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+  color: #ffffff;
+}
+.tpl2-title {
+  font-size: 12pt;
+  font-weight: 400;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 14px;
+}
+.tpl2-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 16px;
+  font-size: 9pt;
+  color: rgba(255,255,255,0.8);
+}
+.tpl2-contact span { display: flex; align-items: center; gap: 4px; }
+.tpl2-body { padding: 36px 52px; flex: 1; }
+.tpl2-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 36px; }
+.tpl2-left {}
+.tpl2-right {}
+.tpl2-section { margin-bottom: 24px; }
+.tpl2-section-title {
+  font-size: 9pt;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #2563EB;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #BFDBFE;
+}
+.tpl2-summary {
+  font-size: 9.5pt;
+  color: #475569;
+  line-height: 1.7;
+}
+.tpl2-skill {
+  display: block;
+  font-size: 9pt;
+  padding: 4px 0;
+  color: #334155;
+  border-bottom: 1px solid #F1F5F9;
+}
+.tpl2-skill:last-child { border-bottom: none; }
+.tpl2-skill-bar {
+  height: 3px;
+  background: #E2E8F0;
+  border-radius: 2px;
+  margin-top: 3px;
+  overflow: hidden;
+}
+.tpl2-skill-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2563EB, #3B82F6);
+  border-radius: 2px;
+  width: 80%;
+}
+.tpl2-entry { margin-bottom: 16px; }
+.tpl2-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+.tpl2-entry-title { font-weight: 700; font-size: 10.5pt; color: #0f172a; }
+.tpl2-entry-period {
+  font-size: 8.5pt;
+  color: #64748B;
+  white-space: nowrap;
+  background: #F1F5F9;
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+.tpl2-entry-sub { font-size: 9.5pt; color: #2563EB; font-weight: 500; margin-bottom: 5px; }
+.tpl2-entry-desc { font-size: 9.5pt; color: #475569; line-height: 1.6; }
+.tpl2-entry-desc ul { padding-left: 16px; list-style: disc; }
+
+/* ===========================================================
+   TEMPLATE 3 – PROFESSIONAL (Photo, custom sections)
+   =========================================================== */
+.tpl3-root {
+  font-family: 'Inter', sans-serif;
+  background: #ffffff;
+  font-size: 10.5pt;
+  color: #1e293b;
+  line-height: 1.6;
+  min-height: 297mm;
+}
+.tpl3-header {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #1D4ED8 100%);
+  padding: 40px 52px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+.tpl3-photo-container {
+  flex-shrink: 0;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(255,255,255,0.3);
+  box-shadow: 0 0 0 6px rgba(255,255,255,0.08);
+  background: #334155;
+  position: relative;
+}
+.tpl3-photo-container img {
+  position: absolute;
+  transform-origin: top left;
+  pointer-events: none;
+}
+.tpl3-photo-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.3);
+  font-size: 2.5rem;
+}
+.tpl3-header-info { flex: 1; }
+.tpl3-name {
+  font-size: 27pt;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+.tpl3-title {
+  font-size: 11pt;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 14px;
+  font-weight: 400;
+}
+.tpl3-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 16px;
+  font-size: 8.5pt;
+  color: rgba(255,255,255,0.7);
+}
+.tpl3-contact span { display: flex; align-items: center; gap: 4px; }
+.tpl3-body { display: grid; grid-template-columns: 220px 1fr; min-height: 0; }
+.tpl3-sidebar {
+  background: #F8FAFC;
+  border-right: 1px solid #E2E8F0;
+  padding: 32px 24px;
+}
+.tpl3-main { padding: 32px 40px; }
+.tpl3-section { margin-bottom: 24px; }
+.tpl3-section-title {
+  font-size: 8.5pt;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+}
+.tpl3-sidebar .tpl3-section-title {
+  color: #7C3AED;
+  border-bottom: 2px solid #EDE9FE;
+}
+.tpl3-main .tpl3-section-title {
+  color: #1D4ED8;
+  border-bottom: 2px solid #BFDBFE;
+}
+.tpl3-summary { font-size: 9.5pt; color: #475569; line-height: 1.7; }
+.tpl3-skill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 9pt;
+  color: #334155;
+  padding: 3px 0;
+}
+.tpl3-skill-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #7C3AED;
+  flex-shrink: 0;
+}
+.tpl3-entry { margin-bottom: 18px; }
+.tpl3-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 3px;
+}
+.tpl3-entry-title { font-weight: 700; font-size: 10.5pt; color: #0f172a; }
+.tpl3-entry-period {
+  font-size: 8.5pt;
+  color: #64748B;
+  white-space: nowrap;
+  background: #EFF6FF;
+  padding: 2px 8px;
+  border-radius: 100px;
+  color: #1D4ED8;
+}
+.tpl3-entry-sub { font-size: 9.5pt; color: #7C3AED; font-weight: 500; margin-bottom: 5px; }
+.tpl3-entry-desc { font-size: 9.5pt; color: #475569; line-height: 1.6; }
+.tpl3-entry-desc ul { padding-left: 16px; list-style: disc; }
+.tpl3-custom-section { margin-bottom: 22px; }
+.tpl3-custom-title {
+  font-size: 8.5pt;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #059669;
+  border-bottom: 2px solid #D1FAE5;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+}
+.tpl3-custom-content { font-size: 9.5pt; color: #475569; line-height: 1.7; }
