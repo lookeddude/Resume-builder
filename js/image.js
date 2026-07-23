@@ -181,7 +181,7 @@ window.ImageManager = {
     });
 
     btnOut.addEventListener('click', () => {
-      const newVal = Math.max(20, parseFloat(slider.value) - 10);
+      const newVal = Math.max(10, parseFloat(slider.value) - 10);
       slider.value = newVal;
       updateZoom(newVal);
     });
@@ -192,7 +192,7 @@ window.ImageManager = {
       frame.addEventListener('wheel', (e) => {
         e.preventDefault();
         const delta = e.deltaY > 0 ? -5 : 5;
-        const newVal = Math.min(300, Math.max(20, parseFloat(slider.value) + delta));
+        const newVal = Math.min(300, Math.max(10, parseFloat(slider.value) + delta));
         slider.value = newVal;
         updateZoom(newVal);
       }, { passive: false });
