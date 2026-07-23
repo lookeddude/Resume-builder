@@ -66,13 +66,17 @@ window.TemplateEngine = {
       `);
     }
 
-    // Skills
+    // ── Skills (T1 – clean rectangular tags, left-aligned) ──
     if (state.skills.length > 0) {
-      const skillItems = state.skills.map(s => `<span class="tpl1-skill">${this._esc(s)}</span>`).join('');
+      const tags = state.skills.map(s =>
+        `<span style="display:inline-block;font-size:9pt;font-family:'Inter',sans-serif;
+          color:#374151;background:#F3F4F6;border:1px solid #D1D5DB;
+          border-radius:5px;padding:5px 13px;margin:0 5px 7px 0;">${this._esc(s)}</span>`
+      ).join('');
       sections.push(`
         <div class="tpl1-section">
           <div class="tpl1-section-title">Skills</div>
-          <div class="tpl1-skills-wrap">${skillItems}</div>
+          <div style="display:block;">${tags}</div>
         </div>
       `);
     }
@@ -144,15 +148,19 @@ window.TemplateEngine = {
     // LEFT COLUMN
     const leftParts = [];
 
-    // Skills in left sidebar
+    // ── Skills (T2 – dot-bullet list in sidebar) ──
     if (state.skills.length > 0) {
-      const skillItems = state.skills.map(s => `
-        <span class="tpl2-skill">${this._esc(s)}</span>
-      `).join('');
+      const items = state.skills.map(s =>
+        `<div style="display:block;padding:5px 0;border-bottom:1px solid #F1F5F9;">
+           <span style="display:inline-block;width:7px;height:7px;border-radius:50%;
+             background:#2563EB;vertical-align:middle;margin-right:9px;"></span>
+           <span style="font-size:9pt;color:#334155;vertical-align:middle;">${this._esc(s)}</span>
+         </div>`
+      ).join('');
       leftParts.push(`
         <div class="tpl2-section">
           <div class="tpl2-section-title">Skills</div>
-          ${skillItems}
+          <div style="display:block;">${items}</div>
         </div>
       `);
     }
@@ -261,20 +269,19 @@ window.TemplateEngine = {
     // SIDEBAR
     const sidebarParts = [];
 
+    // ── Skills (T3 – purple-tinted badge tags in sidebar) ──
     if (state.skills.length > 0) {
-      const skillItems = state.skills.map(s => `
-        <div style="display:block;padding:3px 0;line-height:1;">
-          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;
-                       background:#7C3AED;vertical-align:middle;margin-right:8px;
-                       margin-bottom:2px;"></span>
-          <span style="display:inline;vertical-align:middle;font-size:9pt;color:#334155;
-                       padding-bottom:15px;">${this._esc(s)}</span>
-        </div>
-      `).join('');
+      const badges = state.skills.map(s =>
+        `<span style="display:inline-block;font-size:8.5pt;font-family:'Inter',sans-serif;
+          color:#5B21B6;background:#EDE9FE;border:1px solid #C4B5FD;
+          border-radius:5px;padding:4px 11px;margin:0 4px 6px 0;">${this._esc(s)}</span>`
+      ).join('');
       sidebarParts.push(`
         <div class="tpl3-section">
-          <div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#7C3AED;border-bottom:2px solid #EDE9FE;margin-bottom:10px;padding-bottom:5px;">Skills</div>
-          ${skillItems}
+          <div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;
+            letter-spacing:1.5px;color:#7C3AED;border-bottom:2px solid #EDE9FE;
+            margin-bottom:10px;padding-bottom:5px;">Skills</div>
+          <div style="display:block;">${badges}</div>
         </div>
       `);
     }
@@ -434,21 +441,20 @@ window.TemplateEngine = {
         </div>`);
     }
 
-    /* Skills */
+    /* Skills (T4 – dark blue-tinted rectangular tags) */
     if (state.skills.length > 0) {
-      const pills = state.skills.map(s =>
-        `<span style="display:inline-block;text-align:center;vertical-align:middle;
-                background:rgba(59,130,246,0.18);color:#93C5FD;
-                font-size:7.5pt;height:20px;line-height:20px;padding:0 10px 15px;
-                border-radius:100px;margin:3px 3px;
-                border:1px solid rgba(59,130,246,0.3);
-                white-space:nowrap;box-sizing:border-box;">${this._esc(s)}</span>`
+      const tags = state.skills.map(s =>
+        `<span style="display:inline-block;font-size:7.5pt;color:#93C5FD;
+          background:rgba(59,130,246,0.14);border:1px solid rgba(59,130,246,0.38);
+          border-radius:5px;padding:4px 10px;margin:0 4px 6px 0;
+          white-space:nowrap;">${this._esc(s)}</span>`
       ).join('');
       sidebarParts.push(`
         <div style="margin-bottom:20px;">
-          <div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#60A5FA;
-                      border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:6px;margin-bottom:10px;">Skills</div>
-          <div style="width:180px;max-width:100%;text-align:left;line-height:2.4;">${pills}</div>
+          <div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;
+            color:#60A5FA;border-bottom:1px solid rgba(255,255,255,0.12);
+            padding-bottom:6px;margin-bottom:10px;">Skills</div>
+          <div style="width:180px;max-width:100%;display:block;">${tags}</div>
         </div>`);
     }
 
