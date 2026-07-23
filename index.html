@@ -48,20 +48,12 @@
         </a>
       </div>
 
-      <!-- Center: Desktop nav actions -->
+      <!-- Center: Desktop nav — only My Resumes here -->
       <nav class="header-nav" id="headerNav" aria-label="Main navigation">
         <button class="nav-btn btn-my-resumes" id="btnMyResumes" style="display:none;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
           My Resumes
           <span class="mr-count-badge" id="mrCountBadge" style="display:none;">0</span>
-        </button>
-        <button class="nav-btn btn-sample-nav" id="btnLoadSample">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-          Load Sample
-        </button>
-        <button class="nav-btn btn-clear-nav" id="btnClearAll">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-          Clear
         </button>
       </nav>
 
@@ -91,14 +83,6 @@
             <button class="account-dropdown-item" id="dropdownMyResumes" style="display:none;">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
               My Resumes
-            </button>
-            <button class="account-dropdown-item" id="dropdownLoadSample">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-              Load Sample Data
-            </button>
-            <button class="account-dropdown-item" id="dropdownClear">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-              Clear Form
             </button>
             <div class="account-dropdown-divider"></div>
             <button class="account-dropdown-item account-dropdown-logout" id="dropdownLogout">
@@ -144,14 +128,6 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
         My Resumes
         <span class="mr-count-badge" id="drawerCountBadge" style="display:none;"></span>
-      </button>
-      <button class="drawer-nav-item" id="drawerLoadSample">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-        Load Sample Data
-      </button>
-      <button class="drawer-nav-item" id="drawerClear">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-        Clear Form
       </button>
       <div class="drawer-divider"></div>
       <button class="drawer-nav-item drawer-login-item" id="drawerLogin" style="display:none;">
@@ -238,7 +214,18 @@
                 <span class="tpl-dot tpl-dot-pro"></span> Professional
               </div>
             </label>
-          </div>
+        </div>
+
+        <!-- ─── QUICK ACTIONS (below template) ─── -->
+        <div class="quick-actions-bar">
+          <button class="qa-btn qa-sample" id="btnLoadSample">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+            Load Sample Data
+          </button>
+          <button class="qa-btn qa-clear" id="btnClearAll">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Clear Form
+          </button>
         </div>
 
         <!-- ─── PERSONAL INFO ─── -->

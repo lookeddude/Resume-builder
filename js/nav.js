@@ -78,14 +78,6 @@ window.NavManager = {
       close();
       window.MyResumesPanel?.open?.();
     });
-    document.getElementById('dropdownLoadSample')?.addEventListener('click', () => {
-      close();
-      window.ResumeApp?.loadSampleData?.();
-    });
-    document.getElementById('dropdownClear')?.addEventListener('click', () => {
-      close();
-      window.ResumeApp?.clearAll?.();
-    });
   },
 
   /* ── Drawer nav items ── */
@@ -95,14 +87,6 @@ window.NavManager = {
     document.getElementById('drawerMyResumes')?.addEventListener('click', () => {
       close();
       window.MyResumesPanel?.open?.();
-    });
-    document.getElementById('drawerLoadSample')?.addEventListener('click', () => {
-      close();
-      window.ResumeApp?.loadSampleData?.();
-    });
-    document.getElementById('drawerClear')?.addEventListener('click', () => {
-      close();
-      window.ResumeApp?.clearAll?.();
     });
     document.getElementById('drawerLogin')?.addEventListener('click', () => {
       close();
@@ -120,17 +104,16 @@ window.NavManager = {
     document.getElementById('navLoginBtn')?.addEventListener('click', () => {
       window.AuthManager?._showModal?.('login');
     });
-    /* Header nav: Load Sample */
+    /* My Resumes in header-nav */
+    document.getElementById('btnMyResumes')?.addEventListener('click', () => {
+      window.MyResumesPanel?.open?.();
+    });
+    /* Quick-action bar buttons (below template) are wired in nav.js too */
     document.getElementById('btnLoadSample')?.addEventListener('click', () => {
       window.ResumeApp?.loadSampleData?.();
     });
-    /* Header nav: Clear */
     document.getElementById('btnClearAll')?.addEventListener('click', () => {
       window.ResumeApp?.clearAll?.();
-    });
-    /* Header nav: My Resumes */
-    document.getElementById('btnMyResumes')?.addEventListener('click', () => {
-      window.MyResumesPanel?.open?.();
     });
   },
 
