@@ -142,7 +142,7 @@ window.AuthManager = {
           <div class="auth-header">
             <button class="auth-close-btn" id="authCloseBtn" aria-label="Close">×</button>
             <div class="auth-logo">📄</div>
-            <h2 id="authModalTitle">Welcome to ResumeForge</h2>
+            <h2 id="authModalTitle">Welcome to RaazLab</h2>
             <p id="authModalSubtitle">Sign in to download your resume</p>
           </div>
 
