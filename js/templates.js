@@ -12,6 +12,7 @@ window.TemplateEngine = {
     switch (state.template) {
       case 2: return this.template2(state);
       case 3: return this.template3(state);
+      case 4: return this.template4(state);
       default: return this.template1(state);
     }
   },
@@ -376,5 +377,165 @@ window.TemplateEngine = {
         </div>
       </div>
     `;
+  }
+
+  // ===================================================
+  // TEMPLATE 4 – PREMIUM (Dark sidebar + rich main)
+  // ===================================================
+  template4(state) {
+    const p     = state.personal;
+    const photo = state.photo;
+
+    /* ── Photo ── */
+    let photoHtml;
+    if (photo.src) {
+      const tx = photo.x || 0, ty = photo.y || 0, sc = photo.scale || 1;
+      photoHtml = `
+        <div style="width:100px;height:100px;border-radius:50%;overflow:hidden;position:relative;
+                    border:3px solid #3B82F6;box-shadow:0 0 0 5px rgba(59,130,246,0.2);margin:0 auto 20px;">
+          <img src="${photo.src}"
+               style="position:absolute;top:0;left:0;transform:translate(${tx}px,${ty}px) scale(${sc});
+                      transform-origin:top left;pointer-events:none;user-select:none;max-width:none;max-height:none;"
+               alt="Profile photo" />
+        </div>`;
+    } else {
+      photoHtml = `
+        <div style="width:100px;height:100px;border-radius:50%;overflow:hidden;background:#2D3748;
+                    border:3px solid #3B82F6;box-shadow:0 0 0 5px rgba(59,130,246,0.2);
+                    margin:0 auto 20px;display:flex;align-items:center;justify-content:center;
+                    font-size:2.8rem;color:rgba(255,255,255,0.25);">👤</div>`;
+    }
+
+    /* ── Sidebar ── */
+    const sidebarParts = [photoHtml];
+
+    /* Contact */
+    const contactRows = [];
+    if (p.email)    contactRows.push(`<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;"><span style="font-size:10pt;min-width:16px;">✉</span><span style="word-break:break-all;font-size:8.5pt;">${this._esc(p.email)}</span></div>`);
+    if (p.phone)    contactRows.push(`<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;"><span style="font-size:10pt;min-width:16px;">📞</span><span style="font-size:8.5pt;">${this._esc(p.phone)}</span></div>`);
+    if (p.address)  contactRows.push(`<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;"><span style="font-size:10pt;min-width:16px;">📍</span><span style="font-size:8.5pt;">${this._esc(p.address)}</span></div>`);
+    if (p.linkedin) { const url = p.linkedin.replace(/^https?:\/\/(www\.)?/,''); contactRows.push(`<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;"><span style="font-size:10pt;min-width:16px;">🔗</span><span style="word-break:break-all;font-size:8.5pt;">${this._esc(url)}</span></div>`); }
+
+    if (contactRows.length > 0) {
+      sidebarParts.push(`
+        <div style="margin-bottom:20px;">
+          <div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#60A5FA;
+                      border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:6px;margin-bottom:10px;">Contact</div>
+          <div style="color:rgba(255,255,255,0.75);">${contactRows.join('')}</div>
+        </div>`);
+    }
+
+    /* Skills */
+    if (state.skills.length > 0) {
+      const pills = state.skills.map(s =>
+        `<span style="display:inline-block;background:rgba(59,130,246,0.18);color:#93C5FD;
+                font-size:7.5pt;padding:2px 8px;border-radius:100px;margin:2px 3px 2px 0;border:1px solid rgba(59,130,246,0.3);">${this._esc(s)}</span>`
+      ).join('');
+      sidebarParts.push(`
+        <div style="margin-bottom:20px;">
+          <div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#60A5FA;
+                      border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:6px;margin-bottom:10px;">Skills</div>
+          <div style="line-height:1.8;">${pills}</div>
+        </div>`);
+    }
+
+    /* Education in sidebar */
+    if (state.education.length > 0) {
+      const eduRows = state.education.map(e => `
+        <div style="margin-bottom:12px;">
+          <div style="font-size:8.5pt;font-weight:700;color:rgba(255,255,255,0.9);">${this._esc(e.degree || '')}</div>
+          ${e.school ? `<div style="font-size:8pt;color:#93C5FD;">${this._esc(e.school)}</div>` : ''}
+          ${e.field  ? `<div style="font-size:7.5pt;color:rgba(255,255,255,0.5);">${this._esc(e.field)}</div>` : ''}
+          ${e.period ? `<div style="font-size:7.5pt;color:rgba(255,255,255,0.45);">${this._esc(e.period)}</div>` : ''}
+          ${e.gpa    ? `<div style="font-size:7.5pt;color:rgba(255,255,255,0.5);">CGPA: ${this._esc(e.gpa)}</div>` : ''}
+        </div>`).join('');
+      sidebarParts.push(`
+        <div style="margin-bottom:20px;">
+          <div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#60A5FA;
+                      border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:6px;margin-bottom:10px;">Education</div>
+          ${eduRows}
+        </div>`);
+    }
+
+    /* ── Main content ── */
+    const mainParts = [];
+
+    /* Summary → Executive Profile */
+    if (p.summary) {
+      mainParts.push(`
+        <div style="margin-bottom:22px;">
+          <div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;
+                      border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:10px;">Executive Profile</div>
+          <p style="font-size:9.5pt;color:#475569;line-height:1.75;margin:0;">${this._esc(p.summary)}</p>
+        </div>`);
+    }
+
+    /* Work Experience */
+    if (state.experience.length > 0) {
+      const entries = state.experience.map(e => `
+        <div style="margin-bottom:18px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+            <span style="font-weight:700;font-size:10pt;color:#0f172a;">${this._esc(e.company || '')}</span>
+            <span style="font-size:8pt;color:#64748B;white-space:nowrap;">${this._esc(e.period || '')}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            ${e.position ? `<span style="font-size:9pt;color:#1D4ED8;font-weight:500;">${this._esc(e.position)}</span>` : '<span></span>'}
+            ${e.location ? `<span style="font-size:8pt;color:#7C3AED;">${this._esc(e.location)}</span>` : ''}
+          </div>
+          ${e.description ? `<div>${this._nl2bullets(e.description)}</div>` : ''}
+        </div>`).join('');
+      mainParts.push(`
+        <div style="margin-bottom:22px;">
+          <div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;
+                      border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:12px;">Work Experience</div>
+          ${entries}
+        </div>`);
+    }
+
+    /* Projects */
+    if (state.projects.length > 0) {
+      const entries = state.projects.map(e => `
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+            <span style="font-weight:700;font-size:10pt;color:#0f172a;">${this._esc(e.name || '')}</span>
+            ${e.tech ? `<span style="font-size:8pt;color:#64748B;font-style:italic;">${this._esc(e.tech)}</span>` : ''}
+          </div>
+          ${e.description ? `<div style="margin-top:4px;">${this._nl2bullets(e.description)}</div>` : ''}
+        </div>`).join('');
+      mainParts.push(`
+        <div style="margin-bottom:22px;">
+          <div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;
+                      border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:12px;">Projects</div>
+          ${entries}
+        </div>`);
+    }
+
+    /* Custom sections (Certifications, Languages, etc.) */
+    state.customSections.forEach(cs => {
+      const lines = (cs.content || '').split('\n').filter(l => l.trim());
+      const listHtml = lines.map(l => `<div style="font-size:9.5pt;color:#475569;padding:2px 0;">- ${this._esc(l.replace(/^[\-\u2022]\s*/,''))}</div>`).join('');
+      mainParts.push(`
+        <div style="margin-bottom:22px;">
+          <div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;
+                      border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:10px;">${this._esc(cs.title)}</div>
+          ${listHtml || `<p style="font-size:9.5pt;color:#94A3B8;">Add content...</p>`}
+        </div>`);
+    });
+
+    return `
+      <div style="display:flex;min-height:100%;font-family:'Inter','Segoe UI',sans-serif;">
+        <!-- Sidebar -->
+        <div style="width:220px;flex-shrink:0;background:#1A2332;padding:30px 20px;color:rgba(255,255,255,0.8);">
+          ${sidebarParts.join('')}
+        </div>
+        <!-- Main -->
+        <div style="flex:1;padding:36px 40px;background:#fff;">
+          <div style="margin-bottom:18px;">
+            <div style="font-size:24pt;font-weight:800;color:#0f172a;letter-spacing:-0.5px;line-height:1.1;">${this._esc(p.fullName || 'Your Name')}</div>
+            ${p.jobTitle ? `<div style="font-size:11pt;color:#1D4ED8;font-weight:500;margin-top:4px;">${this._esc(p.jobTitle)}</div>` : ''}
+          </div>
+          ${mainParts.join('') || '<p style="color:#94A3B8;font-size:9pt;">Fill in your details...</p>'}
+        </div>
+      </div>`;
   }
 };

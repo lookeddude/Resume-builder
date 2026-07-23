@@ -173,18 +173,35 @@ window.ResumeApp = {
 
   // ─── Load Sample Data ───
   loadSampleData() {
-    // Set state with rich sample data
-    this.state.personal = {
+    const isPremium = this.state.template === 4;
+
+    // ── Personal Info ──
+    this.state.personal = isPremium ? {
+      fullName:  'Rajnish Kumar',
+      jobTitle:  'Lead Software Architect',
+      email:     'rajnish.kumar@email.dev',
+      phone:     '+91 98765 43210',
+      address:   'Mumbai, Maharashtra, India',
+      linkedin:  'https://linkedin.com/in/rajnish-kumar',
+      summary:   'Forward-thinking Software Architect with 8+ years of experience designing and executing enterprise web architectures. Proven expertise in React, Node.js, Cloud Services, and building scalable SaaS applications. Committed to clean code, performance optimization, and mentoring cross-functional engineering teams.'
+    } : {
       fullName:  'Alexandra Chen',
       jobTitle:  'Senior Full-Stack Engineer',
       email:     'alex.chen@email.com',
       phone:     '+1 (415) 867-5309',
       address:   'San Francisco, CA',
       linkedin:  'https://linkedin.com/in/alexchen-dev',
-      summary:   'Passionate full-stack engineer with 6+ years of experience building scalable web applications and distributed systems. Led cross-functional teams to ship products used by millions of users. Strong expertise in React, Node.js, and cloud infrastructure. Adept at translating complex business requirements into elegant, maintainable solutions.'
+      summary:   'Passionate full-stack engineer with 6+ years of experience building scalable web applications and distributed systems. Led cross-functional teams to ship products used by millions of users. Strong expertise in React, Node.js, and cloud infrastructure.'
     };
 
-    this.state.skills = [
+    this.state.skills = isPremium ? [
+      'JavaScript (ES6+)', 'TypeScript', 'Go',
+      'Python', 'SQL', 'HTML/CSS',
+      'React', 'Node.js', 'Express',
+      'Next.js', 'Redux Toolkit', 'TailwindCSS',
+      'Git', 'Docker', 'AWS (S3/EC2)',
+      'PostgreSQL', 'MongoDB', 'Redis', 'GraphQL'
+    ] : [
       'JavaScript', 'TypeScript', 'React', 'Node.js',
       'Python', 'PostgreSQL', 'MongoDB', 'GraphQL',
       'Docker', 'Kubernetes', 'AWS', 'CI/CD', 'Git'
@@ -192,12 +209,22 @@ window.ResumeApp = {
 
     // Give each entry a unique _id and update counters
     const fm = window.FormManager;
-    fm._counters.education = 2;
-    fm._counters.experience = 3;
-    fm._counters.projects = 3;
-    fm._counters.custom = 2;
+    fm._counters.education  = 2;
+    fm._counters.experience = 2;
+    fm._counters.projects   = 2;
+    fm._counters.custom     = 2;
 
-    this.state.education = [
+    this.state.education = isPremium ? [
+      {
+        _id: 1,
+        degree:      'B.Tech in Computer Science & Engineering',
+        school:      'Indian Institute of Technology (IIT)',
+        field:       'Computer Science & Engineering',
+        period:      '2016-07 – 2020-05',
+        gpa:         '8.9/10',
+        description: 'Specialized in Algorithms, Distributed Systems, and Advanced Database Systems. Graduated with Honors.'
+      }
+    ] : [
       {
         _id: 1,
         degree:      'B.Sc. Computer Science',
@@ -361,9 +388,10 @@ window.ResumeApp = {
   },
 
   _handleTemplateVisibility() {
-    const isT3 = this.state.template === 3;
-    document.getElementById('photoSection').style.display = isT3 ? 'block' : 'none';
-    document.getElementById('customSectionsWrapper').style.display = isT3 ? 'block' : 'none';
+    const needsPhoto   = this.state.template === 3 || this.state.template === 4;
+    const needsCustom  = this.state.template === 3 || this.state.template === 4;
+    document.getElementById('photoSection').style.display          = needsPhoto  ? 'block' : 'none';
+    document.getElementById('customSectionsWrapper').style.display = needsCustom ? 'block' : 'none';
   },
 
   async _updateResumeCountBadge() {
