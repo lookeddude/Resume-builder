@@ -86,17 +86,28 @@ window.AuthManager = {
     const hash   = window.location.hash;
     const params = new URLSearchParams(window.location.search);
 
-    /* OAuth redirects back with access_token in hash — Supabase handles automatically.
-       We just need to clean up the URL if session established. */
+    /* OAuth redirects back with access_token in hash — Supabase handles automatically. */
     if (hash.includes('access_token') || params.get('code')) {
       await new Promise(r => setTimeout(r, 500)); /* Let Supabase parse the URL */
       const { data: { session } } = await this._client.auth.getSession();
       if (session?.user) {
         this._user = session.user;
         this._updateHeaderUI();
+        window.NavManager?.updateAuthState(this._user);
         /* Clean URL */
         history.replaceState(null, '', window.location.pathname);
-        window.ResumeApp?.showToast('✅ Signed in successfully!', 'success');
+
+        /* Restore form data saved before the Google OAuth redirect */
+        setTimeout(() => {
+          const restored = window.ResumeApp?.restoreStateDraft?.();
+          if (restored) {
+            window.ResumeApp?.showToast('✅ Signed in! Your resume data has been restored.', 'success');
+            window.ResumeApp?.clearStateDraft?.();
+          } else {
+            window.ResumeApp?.showToast('✅ Signed in successfully!', 'success');
+          }
+        }, 400); /* slight delay so FormManager is fully ready */
+
         /* Resume callback if any */
         if (typeof this._onSuccessCallback === 'function') {
           setTimeout(() => this._onSuccessCallback(), 300);
@@ -324,6 +335,8 @@ window.AuthManager = {
     ['authEmailInput','authPasswordInput','authNameInput','otpEmailInput','otpCodeInput']
       .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     this._resetOtpToSend();
+    /* Save current form data before login — will be restored after auth */
+    window.ResumeApp?.saveStateDraft?.();
     document.getElementById('authBackdrop').style.display = 'flex';
     setTimeout(() => document.getElementById('authEmailInput').focus(), 120);
   },
@@ -445,6 +458,9 @@ window.AuthManager = {
     const btn = document.getElementById('authGoogleBtn');
     btn.disabled = true;
     btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Connecting…`;
+
+    /* Save form data BEFORE redirect — Google causes a full page reload */
+    window.ResumeApp?.saveStateDraft?.();
 
     const { error } = await this._client.auth.signInWithOAuth({
       provider: 'google',
@@ -630,7 +646,16 @@ window.AuthManager = {
     this._updateHeaderUI();
     window.NavManager?.updateAuthState(this._user);
     this._hideModal();
-    window.ResumeApp?.showToast('✅ Welcome! You are signed in.', 'success');
+
+    /* Restore any form data the user had before logging in */
+    const restored = window.ResumeApp?.restoreStateDraft?.();
+    if (restored) {
+      window.ResumeApp?.showToast('✅ Signed in! Your resume data has been restored.', 'success');
+      window.ResumeApp?.clearStateDraft?.();
+    } else {
+      window.ResumeApp?.showToast('✅ Welcome! You are signed in.', 'success');
+    }
+
     /* Update My Resumes count badge */
     setTimeout(() => window.ResumeApp?._updateResumeCountBadge?.(), 500);
     setTimeout(() => {

@@ -30,15 +30,99 @@ window.ResumeApp = {
     }
   },
 
+  // ─── localStorage draft key ───
+  _DRAFT_KEY: 'raazlab_resume_draft',
+
   // ─── Preview debounce timer ───
   _previewTimer: null,
 
-  // ─── Schedule a live preview refresh ───
+  // ─── Schedule a live preview refresh (also auto-saves draft) ───
   schedulePreview() {
     clearTimeout(this._previewTimer);
     this._previewTimer = setTimeout(() => {
       window.PreviewManager.render();
+      this.saveStateDraft(); /* persist every time preview updates */
     }, 80);
+  },
+
+  // ─── Save full state to localStorage ───
+  saveStateDraft() {
+    try {
+      const draft = {
+        template  : this.state.template,
+        personal  : { ...this.state.personal },
+        skills    : [...this.state.skills],
+        education : JSON.parse(JSON.stringify(this.state.education)),
+        experience: JSON.parse(JSON.stringify(this.state.experience)),
+        projects  : JSON.parse(JSON.stringify(this.state.projects)),
+        customSections: JSON.parse(JSON.stringify(this.state.customSections)),
+        photo     : { ...this.state.photo },
+        savedAt   : Date.now(),
+      };
+      localStorage.setItem(this._DRAFT_KEY, JSON.stringify(draft));
+    } catch(e) { /* storage might be full or unavailable */ }
+  },
+
+  // ─── Restore state from localStorage and repopulate form ───
+  restoreStateDraft() {
+    try {
+      const raw = localStorage.getItem(this._DRAFT_KEY);
+      if (!raw) return false;
+      const draft = JSON.parse(raw);
+
+      /* Don't restore very old drafts (> 2 hours) */
+      if (Date.now() - (draft.savedAt || 0) > 2 * 60 * 60 * 1000) {
+        this.clearStateDraft();
+        return false;
+      }
+
+      /* Check if there's meaningful data to restore */
+      const hasData = draft.personal?.fullName ||
+                      draft.skills?.length ||
+                      draft.education?.length ||
+                      draft.experience?.length;
+      if (!hasData) return false;
+
+      /* Apply to state */
+      this.state.template       = draft.template       ?? this.state.template;
+      this.state.personal       = { ...this.state.personal, ...draft.personal };
+      this.state.skills         = draft.skills         ?? [];
+      this.state.education      = draft.education      ?? [];
+      this.state.experience     = draft.experience     ?? [];
+      this.state.projects       = draft.projects       ?? [];
+      this.state.customSections = draft.customSections ?? [];
+      this.state.photo          = { ...this.state.photo, ...draft.photo };
+
+      /* Update counters in FormManager so dynamic entries render correctly */
+      if (window.FormManager) {
+        window.FormManager._counters.education  = this.state.education.length;
+        window.FormManager._counters.experience = this.state.experience.length;
+        window.FormManager._counters.projects   = this.state.projects.length;
+        window.FormManager._counters.custom     = this.state.customSections.length;
+      }
+
+      /* Repopulate the form UI */
+      window.FormManager?.populateForm?.();
+
+      /* Select correct template card */
+      const tplInput = document.querySelector(`input[name="template"][value="${this.state.template}"]`);
+      if (tplInput) {
+        tplInput.checked = true;
+        document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
+        tplInput.closest('.template-card')?.classList.add('active');
+        this._handleTemplateVisibility();
+      }
+
+      this.schedulePreview();
+      return true;
+    } catch(e) {
+      return false;
+    }
+  },
+
+  // ─── Clear draft from localStorage ───
+  clearStateDraft() {
+    try { localStorage.removeItem(this._DRAFT_KEY); } catch(e) {}
   },
 
   // ─── Show toast notification ───
