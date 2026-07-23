@@ -58,25 +58,34 @@ window.NavManager = {
     const toggle = () => {
       const isOpen = accountDropdown.classList.toggle('open');
       accountBtn.setAttribute('aria-expanded', String(isOpen));
+      if (isOpen) {
+        /* Align fixed dropdown to the right edge of the account button */
+        const rect = accountBtn.getBoundingClientRect();
+        accountDropdown.style.right = (window.innerWidth - rect.right) + 'px';
+      }
     };
+
     const close = () => {
       accountDropdown.classList.remove('open');
       accountBtn.setAttribute('aria-expanded', 'false');
     };
 
+    /* Toggle on button click */
     accountBtn.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
+    /* Close when clicking outside */
     document.addEventListener('click', (e) => {
       if (!accountBtn.contains(e.target) && !accountDropdown.contains(e.target)) close();
     });
+    /* Close on Escape */
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 
-    /* Dropdown action items */
+    /* Sign Out */
     document.getElementById('dropdownLogout')?.addEventListener('click', () => {
-      close();
-      window.AuthManager?.signOut?.();
+      close(); window.AuthManager?.signOut?.();
     });
+    /* My Resumes */
     document.getElementById('dropdownMyResumes')?.addEventListener('click', () => {
-      close();
-      window.MyResumesPanel?.open?.();
+      close(); window.MyResumesPanel?.open?.();
     });
   },
 
