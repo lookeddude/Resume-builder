@@ -118,7 +118,8 @@ window.PDFManager = {
     captureEl.id = 'pdfCaptureEl';
     captureEl.style.cssText = [
       'position:fixed', 'top:0', 'left:0',
-      `width:${A4_W_PX}px`, 'overflow:visible',
+      `width:${A4_W_PX}px`,
+      'overflow:hidden',       /* prevent flex/inline-block children from overflowing */
       'background:#ffffff', 'z-index:-1',
       'pointer-events:none', 'margin:0', 'padding:0',
     ].join(';');
@@ -127,7 +128,7 @@ window.PDFManager = {
 
     await this._nextFrame();
     await this._nextFrame();
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise(r => setTimeout(r, 200)); /* extra settle time for complex layouts */
 
     let canvas;
     try {
@@ -146,6 +147,8 @@ window.PDFManager = {
           const el = clonedDoc.getElementById('pdfCaptureEl');
           if (el) {
             el.style.position  = 'static';
+            el.style.width     = `${A4_W_PX}px`;
+            el.style.overflow  = 'hidden';
             el.style.zIndex    = '1';
             el.style.opacity   = '1';
             el.style.boxShadow = 'none';
