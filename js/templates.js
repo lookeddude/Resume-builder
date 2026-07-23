@@ -377,7 +377,7 @@ window.TemplateEngine = {
         </div>
       </div>
     `;
-  }
+  },
 
   // ===================================================
   // TEMPLATE 4 – PREMIUM (Dark sidebar + rich main)
