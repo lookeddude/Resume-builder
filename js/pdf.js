@@ -65,7 +65,8 @@ window.PDFManager = {
     this._setOverlayStatus('Generating PDF…');
 
     try {
-      const safeName = (personal.fullName || 'Resume')
+      const { personal } = window.ResumeApp.state;
+      const safeName = (personal?.fullName || 'Resume')
         .replace(/[^a-zA-Z0-9\s\-_]/g, '')
         .trim()
         .replace(/\s+/g, '_') || 'Resume';
