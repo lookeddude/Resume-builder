@@ -438,15 +438,16 @@ window.TemplateEngine = {
       const pills = state.skills.map(s =>
         `<span style="display:inline-block;text-align:center;vertical-align:middle;
                 background:rgba(59,130,246,0.18);color:#93C5FD;
-                font-size:7.5pt;padding:3px 10px;border-radius:100px;
-                margin:3px 3px;border:1px solid rgba(59,130,246,0.3);
-                white-space:nowrap;line-height:1.4;">${this._esc(s)}</span>`
+                font-size:7.5pt;height:20px;line-height:20px;padding:0 10px;
+                border-radius:100px;margin:3px 3px;
+                border:1px solid rgba(59,130,246,0.3);
+                white-space:nowrap;box-sizing:border-box;">${this._esc(s)}</span>`
       ).join('');
       sidebarParts.push(`
         <div style="margin-bottom:20px;">
           <div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#60A5FA;
                       border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:6px;margin-bottom:10px;">Skills</div>
-          <div style="width:180px;max-width:100%;text-align:left;line-height:2.2;">${pills}</div>
+          <div style="width:180px;max-width:100%;text-align:left;line-height:2.4;">${pills}</div>
         </div>`);
     }
 

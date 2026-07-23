@@ -95,7 +95,7 @@
 .tpl1-skills-wrap {
   display: block;
   text-align: center;
-  line-height: 2;
+  line-height: 2.4;
 }
 .tpl1-skill {
   display: inline-block;
@@ -103,14 +103,16 @@
   vertical-align: middle;
   font-size: 9pt;
   font-family: 'Inter', sans-serif;
-  padding: 4px 14px;
+  height: 24px;
+  line-height: 24px;
+  padding: 0 14px;
   border: 1px solid #ccc;
   border-radius: 100px;
   color: #333;
   background: #f5f5f5;
-  line-height: 1.4;
   white-space: nowrap;
-  margin: 2px 3px;
+  margin: 3px 3px;
+  box-sizing: border-box;
 }
 .tpl1-skill:not(:last-child)::after { content: ''; }
 
