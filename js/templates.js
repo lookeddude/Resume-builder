@@ -438,7 +438,7 @@ window.TemplateEngine = {
       const pills = state.skills.map(s =>
         `<span style="display:inline-block;text-align:center;vertical-align:middle;
                 background:rgba(59,130,246,0.18);color:#93C5FD;
-                font-size:7.5pt;height:20px;line-height:20px;padding:0 10px;
+                font-size:7.5pt;height:20px;line-height:20px;padding:0 10px 5px;
                 border-radius:100px;margin:3px 3px;
                 border:1px solid rgba(59,130,246,0.3);
                 white-space:nowrap;box-sizing:border-box;">${this._esc(s)}</span>`
