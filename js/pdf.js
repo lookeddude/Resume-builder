@@ -20,6 +20,7 @@ window.PDFManager = {
   A4_H_PX : 1123,
   PX_TO_MM: 0.264583,
   SCALE   : 2,
+  _isExporting: false,  /* guard against double-clicks / duplicate triggers */
 
   init() {
     /* The download button click is intercepted by AuthManager.
@@ -30,7 +31,20 @@ window.PDFManager = {
      PUBLIC – called by AuthManager after auth
   ════════════════════════════════════════════ */
   async exportPDF() {
-    const { personal } = window.ResumeApp.state;
+    /* Prevent multiple simultaneous exports (double-click, duplicate listener) */
+    if (this._isExporting) {
+      console.warn('[PDFManager] Export already in progress — ignoring duplicate call');
+      return;
+    }
+    this._isExporting = true;
+
+    /* Disable the button visually during export */
+    const downloadBtn = document.getElementById('btnDownloadPDF');
+    if (downloadBtn) {
+      downloadBtn.disabled = true;
+      downloadBtn._origText = downloadBtn.innerHTML;
+      downloadBtn.innerHTML = '⏳ Generating…';
+    }
 
     /* 1. Ensure staging is up to date */
     window.PreviewManager.render();
@@ -40,6 +54,8 @@ window.PDFManager = {
     const stagingHtml = window.PreviewManager.getStagingHTML();
     if (!stagingHtml || stagingHtml.trim() === '') {
       window.ResumeApp.showToast('⚠️ Please fill in your details first', 'error');
+      this._isExporting = false;
+      this._restoreDownloadBtn();
       return;
     }
 
@@ -72,6 +88,20 @@ window.PDFManager = {
       window.ResumeApp.showToast('❌ PDF generation failed. Please try again.', 'error');
     } finally {
       overlay.style.display = 'none';
+      this._isExporting = false;      /* always release the lock */
+      this._restoreDownloadBtn();
+    }
+  },
+
+  /* ——— Re-enable the download button ——— */
+  _restoreDownloadBtn() {
+    const btn = document.getElementById('btnDownloadPDF');
+    if (btn) {
+      btn.disabled = false;
+      if (btn._origText) {
+        btn.innerHTML  = btn._origText;
+        btn._origText  = null;
+      }
     }
   },
 

@@ -17,6 +17,9 @@ window.AuthManager = {
   SUPABASE_URL : 'https://ymacxzoocqusbdruyqfk.supabase.co',
   SUPABASE_KEY : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltYWN4em9vY3F1c2JkcnV5cWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1OTk2ODIsImV4cCI6MjEwMDE3NTY4Mn0.RmmjrvhlvxBPeiuUFRZBF6ag79uF2Sn_MecEaw-CAb4',
 
+  /* Production URL — email verification links & OAuth redirects go here */
+  SITE_URL : 'https://resume-builder-three-pied-84.vercel.app/',
+
   _client            : null,
   _user              : null,
   _mode              : 'login',   /* login | signup | otp */
@@ -102,19 +105,27 @@ window.AuthManager = {
 
   /* ════════════════════════════════════════════
      INTERCEPT DOWNLOAD BUTTON
+     — Guards against duplicate listeners and
+       double-clicks during export.
   ════════════════════════════════════════════ */
   _interceptDownloadButton() {
     const btn = document.getElementById('btnDownloadPDF');
-    if (!btn) return;
+    if (!btn || btn.dataset.authListenerBound) return; /* prevent duplicate listeners */
+    btn.dataset.authListenerBound = '1';
+
     btn.addEventListener('click', async (e) => {
       e.stopImmediatePropagation();
       e.preventDefault();
+
+      /* Block if already exporting */
+      if (window.PDFManager?._isExporting) return;
+
       if (this.isAuthenticated()) {
         window.PDFManager.exportPDF();
       } else {
         this._showModal('login', () => window.PDFManager.exportPDF());
       }
-    }, true);
+    }, true); /* capture phase — runs before any other click listener */
   },
 
   /* ════════════════════════════════════════════
@@ -406,7 +417,11 @@ window.AuthManager = {
   async _doSignup(email, password, name) {
     const { data, error } = await this._client.auth.signUp({
       email, password,
-      options: { data: { full_name: name } }
+      options: {
+        data: { full_name: name },
+        /* After email verification, redirect to the production app */
+        emailRedirectTo: this.SITE_URL,
+      }
     });
     if (error) {
       if (error.message.includes('already registered') || error.message.includes('already exists'))
@@ -432,7 +447,7 @@ window.AuthManager = {
     const { error } = await this._client.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo : window.location.origin + window.location.pathname,
+        redirectTo : this.SITE_URL,
         queryParams: { access_type: 'offline', prompt: 'consent' },
       }
     });
@@ -504,7 +519,11 @@ window.AuthManager = {
 
     const { error } = await this._client.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: true }
+      options: {
+        shouldCreateUser: true,
+        /* Magic link clicks redirect to the production app */
+        emailRedirectTo: this.SITE_URL,
+      }
     });
 
     this._setLoading(btn, false);
