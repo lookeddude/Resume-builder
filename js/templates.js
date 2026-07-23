@@ -268,7 +268,7 @@ window.TemplateEngine = {
                        background:#7C3AED;vertical-align:middle;margin-right:8px;
                        margin-bottom:2px;"></span>
           <span style="display:inline;vertical-align:middle;font-size:9pt;color:#334155;
-                       padding-bottom:3px;">${this._esc(s)}</span>
+                       padding-bottom:15px;">${this._esc(s)}</span>
         </div>
       `).join('');
       sidebarParts.push(`
