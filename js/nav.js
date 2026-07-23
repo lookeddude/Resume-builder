@@ -80,11 +80,11 @@ window.NavManager = {
     });
     document.getElementById('dropdownLoadSample')?.addEventListener('click', () => {
       close();
-      document.getElementById('btnLoadSample')?.click();
+      window.ResumeApp?.loadSampleData?.();
     });
     document.getElementById('dropdownClear')?.addEventListener('click', () => {
       close();
-      document.getElementById('btnClearAll')?.click();
+      window.ResumeApp?.clearAll?.();
     });
   },
 
@@ -98,11 +98,11 @@ window.NavManager = {
     });
     document.getElementById('drawerLoadSample')?.addEventListener('click', () => {
       close();
-      document.getElementById('btnLoadSample')?.click();
+      window.ResumeApp?.loadSampleData?.();
     });
     document.getElementById('drawerClear')?.addEventListener('click', () => {
       close();
-      document.getElementById('btnClearAll')?.click();
+      window.ResumeApp?.clearAll?.();
     });
     document.getElementById('drawerLogin')?.addEventListener('click', () => {
       close();
@@ -119,6 +119,18 @@ window.NavManager = {
     /* Login button in header-right */
     document.getElementById('navLoginBtn')?.addEventListener('click', () => {
       window.AuthManager?._showModal?.('login');
+    });
+    /* Header nav: Load Sample */
+    document.getElementById('btnLoadSample')?.addEventListener('click', () => {
+      window.ResumeApp?.loadSampleData?.();
+    });
+    /* Header nav: Clear */
+    document.getElementById('btnClearAll')?.addEventListener('click', () => {
+      window.ResumeApp?.clearAll?.();
+    });
+    /* Header nav: My Resumes */
+    document.getElementById('btnMyResumes')?.addEventListener('click', () => {
+      window.MyResumesPanel?.open?.();
     });
   },
 

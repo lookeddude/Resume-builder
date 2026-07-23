@@ -224,11 +224,8 @@ window.ResumeApp = {
       });
     });
 
-    // Clear button
-    document.getElementById('btnClearAll').addEventListener('click', () => this.clearAll());
-
-    // Load Sample button
-    document.getElementById('btnLoadSample').addEventListener('click', () => this.loadSampleData());
+    // NOTE: btnClearAll, btnLoadSample, btnMyResumes are now wired in nav.js
+    // to avoid duplicate listeners.
 
     // Generate button (triggers preview + auto-save + scroll to preview on mobile)
     document.getElementById('btnGenerate').addEventListener('click', async () => {
@@ -252,11 +249,7 @@ window.ResumeApp = {
       }
     });
 
-    // My Resumes button
-    const mrBtn = document.getElementById('btnMyResumes');
-    if (mrBtn) {
-      mrBtn.addEventListener('click', () => window.MyResumesPanel?.open());
-    }
+    // My Resumes button — also wired in nav.js; skip duplicate here
 
     // Mobile tab switching
     document.getElementById('tabForm').addEventListener('click', () => {
@@ -293,10 +286,14 @@ window.ResumeApp = {
     if (!window.ResumeDB || !window.AuthManager?.isAuthenticated()) return;
     const { data } = await window.ResumeDB.fetchAll();
     const count  = data?.length || 0;
-    const badge  = document.getElementById('mrCountBadge');
-    if (!badge) return;
-    badge.textContent  = count;
-    badge.style.display = count > 0 ? 'flex' : 'none';
+    /* Update all count badges via NavManager */
+    window.NavManager?.updateCountBadge(count);
+    /* Also update legacy single badge if present */
+    const badge = document.getElementById('mrCountBadge');
+    if (badge) {
+      badge.textContent   = count;
+      badge.style.display = count > 0 ? 'flex' : 'none';
+    }
   },
 };
 
