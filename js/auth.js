@@ -60,6 +60,7 @@ window.AuthManager = {
     this._client.auth.onAuthStateChange((event, session) => {
       this._user = session?.user ?? null;
       this._updateHeaderUI();
+      window.NavManager?.updateAuthState(this._user);
 
       if (event === 'SIGNED_IN' && this._user) {
         /* Auto-close modal if open */
@@ -71,8 +72,9 @@ window.AuthManager = {
     });
 
     this._injectModal();
-    this._injectHeaderUI();
     this._interceptDownloadButton();
+    /* Apply initial nav state (may already be logged in via session) */
+    window.NavManager?.updateAuthState(this._user);
   },
 
   isAuthenticated() { return !!this._user; },
@@ -626,6 +628,7 @@ window.AuthManager = {
   ════════════════════════════════════════════ */
   _onLoginSuccess() {
     this._updateHeaderUI();
+    window.NavManager?.updateAuthState(this._user);
     this._hideModal();
     window.ResumeApp?.showToast('✅ Welcome! You are signed in.', 'success');
     /* Update My Resumes count badge */
@@ -648,63 +651,23 @@ window.AuthManager = {
     document.getElementById('authErrorMsg').style.color = '#1D4ED8';
   },
 
-  /* ════════════════════════════════════════════
-     HEADER UI
-  ════════════════════════════════════════════ */
-  _injectHeaderUI() {
-    if (document.getElementById('authUserArea')) return;
-    const actions = document.querySelector('.header-actions');
-    if (!actions) return;
-    const wrap = document.createElement('div');
-    wrap.id    = 'authUserArea';
-    wrap.style.cssText = 'display:none;align-items:center;gap:8px;';
-    actions.insertBefore(wrap, actions.firstChild);
-  },
+  /* ─── Legacy _injectHeaderUI (no-op — handled by nav.js) ─── */
+  _injectHeaderUI() { /* NavManager handles header UI now */ },
 
+  /* ─── Legacy _updateHeaderUI (delegates to NavManager) ─── */
   _updateHeaderUI() {
-    const area = document.getElementById('authUserArea');
-    if (!area) return;
-
-    if (this._user) {
-      const email    = this._user.email || '';
-      const name     = this._user.user_metadata?.full_name || '';
-      const initials = name
-        ? name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase()
-        : email.slice(0,2).toUpperCase();
-
-      area.style.display = 'flex';
-      area.innerHTML = `
-        <div class="user-badge" title="${email}">
-          <div class="user-avatar">${initials}</div>
-          <span class="user-email-text">${name || email}</span>
-        </div>
-        <button class="btn-signout" id="btnSignOut">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          Sign Out
-        </button>
-      `;
-      document.getElementById('btnSignOut').addEventListener('click', () => this._signOut());
-
-      /* Show My Resumes button */
-      const mrBtn = document.getElementById('btnMyResumes');
-      if (mrBtn) mrBtn.style.display = 'flex';
-
-    } else {
-      area.style.display = 'none';
-      area.innerHTML     = '';
-
-      /* Hide My Resumes button */
-      const mrBtn = document.getElementById('btnMyResumes');
-      if (mrBtn) mrBtn.style.display = 'none';
-    }
+    window.NavManager?.updateAuthState(this._user);
   },
+
+  /* ─── Public signOut (called by NavManager buttons) ─── */
+  async signOut() { await this._signOut(); },
 
   async _signOut() {
     await this._client.auth.signOut();
     this._user = null;
-    this._updateHeaderUI();
+    window.NavManager?.updateAuthState(null);
     window.MyResumesPanel?.setCurrentId(null);
-    window.ResumeApp?.showToast('Signed out successfully');
+    window.ResumeApp?.showToast('👋 Signed out successfully');
   },
 
   /* ════════════════════════════════════════════

@@ -21,44 +21,150 @@
 </head>
 <body>
 
+
   <!-- ===== HEADER ===== -->
-  <header class="app-header">
+  <header class="app-header" id="appHeader">
     <div class="header-inner">
-      <div class="brand">
-        <div class="brand-icon">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-            <rect width="28" height="28" rx="8" fill="url(#brandGrad)"/>
-            <path d="M7 8h14M7 12h10M7 16h12M7 20h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <defs>
-              <linearGradient id="brandGrad" x1="0" y1="0" x2="28" y2="28">
-                <stop offset="0%" stop-color="#2563EB"/>
-                <stop offset="100%" stop-color="#7C3AED"/>
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-        <span class="brand-name">ResumeForge</span>
+
+      <!-- Left: Hamburger (mobile) + Logo -->
+      <div class="header-left">
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <a class="brand" href="/" title="Go to home">
+          <div class="brand-icon">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <rect width="28" height="28" rx="8" fill="url(#brandGrad2)"/>
+              <path d="M7 8h14M7 12h10M7 16h12M7 20h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              <defs>
+                <linearGradient id="brandGrad2" x1="0" y1="0" x2="28" y2="28">
+                  <stop offset="0%" stop-color="#2563EB"/>
+                  <stop offset="100%" stop-color="#7C3AED"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <span class="brand-name">ResumeForge</span>
+        </a>
       </div>
 
-      <div class="header-actions">
-        <!-- My Resumes button (visible only when logged in) -->
-        <button class="btn-my-resumes" id="btnMyResumes" title="View my saved resumes" style="display:none;">
+      <!-- Center: Desktop nav actions -->
+      <nav class="header-nav" id="headerNav" aria-label="Main navigation">
+        <button class="nav-btn btn-my-resumes" id="btnMyResumes" style="display:none;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
           My Resumes
           <span class="mr-count-badge" id="mrCountBadge" style="display:none;">0</span>
         </button>
-        <button class="btn-header btn-sample" id="btnLoadSample" title="Fill form with sample resume data">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+        <button class="nav-btn btn-sample-nav" id="btnLoadSample">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
           Load Sample
         </button>
-        <button class="btn-header" id="btnClearAll" title="Clear all data">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        <button class="nav-btn btn-clear-nav" id="btnClearAll">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
           Clear
         </button>
-        <div class="header-badge">Free &amp; Open</div>
+      </nav>
+
+      <!-- Right: Auth user area -->
+      <div class="header-right">
+        <!-- Logged-out: Login button -->
+        <button class="nav-login-btn" id="navLoginBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Login
+        </button>
+        <!-- Logged-in: Account dropdown -->
+        <div class="account-wrap" id="accountWrap" style="display:none;">
+          <button class="account-btn" id="accountBtn" aria-haspopup="true" aria-expanded="false">
+            <div class="account-avatar" id="accountAvatar">U</div>
+            <span class="account-name" id="accountName">User</span>
+            <svg class="account-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="account-dropdown" id="accountDropdown">
+            <div class="account-dropdown-user">
+              <div class="account-dropdown-avatar" id="dropdownAvatar">U</div>
+              <div>
+                <div class="account-dropdown-name" id="dropdownName">User</div>
+                <div class="account-dropdown-email" id="dropdownEmail">user@email.com</div>
+              </div>
+            </div>
+            <div class="account-dropdown-divider"></div>
+            <button class="account-dropdown-item" id="dropdownMyResumes" style="display:none;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              My Resumes
+            </button>
+            <button class="account-dropdown-item" id="dropdownLoadSample">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+              Load Sample Data
+            </button>
+            <button class="account-dropdown-item" id="dropdownClear">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+              Clear Form
+            </button>
+            <div class="account-dropdown-divider"></div>
+            <button class="account-dropdown-item account-dropdown-logout" id="dropdownLogout">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Sign Out
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </header>
+
+  <!-- ===== MOBILE DRAWER OVERLAY ===== -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+
+  <!-- ===== MOBILE DRAWER ===== -->
+  <aside class="mobile-drawer" id="mobileDrawer" aria-label="Mobile navigation">
+    <div class="drawer-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+            <rect width="28" height="28" rx="8" fill="url(#brandGradD)"/>
+            <path d="M7 8h14M7 12h10M7 16h12M7 20h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <defs><linearGradient id="brandGradD" x1="0" y1="0" x2="28" y2="28"><stop offset="0%" stop-color="#2563EB"/><stop offset="100%" stop-color="#7C3AED"/></linearGradient></defs>
+          </svg>
+        </div>
+        <span class="brand-name">ResumeForge</span>
+      </div>
+      <button class="drawer-close-btn" id="drawerCloseBtn" aria-label="Close menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <!-- Drawer user info -->
+    <div class="drawer-user-info" id="drawerUserInfo" style="display:none;">
+      <div class="drawer-user-avatar" id="drawerAvatar">U</div>
+      <div>
+        <div class="drawer-user-name" id="drawerName">User</div>
+        <div class="drawer-user-email" id="drawerEmail">user@email.com</div>
+      </div>
+    </div>
+    <nav class="drawer-nav">
+      <button class="drawer-nav-item" id="drawerMyResumes" style="display:none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        My Resumes
+        <span class="mr-count-badge" id="drawerCountBadge" style="display:none;"></span>
+      </button>
+      <button class="drawer-nav-item" id="drawerLoadSample">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+        Load Sample Data
+      </button>
+      <button class="drawer-nav-item" id="drawerClear">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+        Clear Form
+      </button>
+      <div class="drawer-divider"></div>
+      <button class="drawer-nav-item drawer-login-item" id="drawerLogin" style="display:none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Login / Sign Up
+      </button>
+      <button class="drawer-nav-item drawer-logout-item" id="drawerLogout" style="display:none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
+    </nav>
+  </aside>
+
 
   <!-- ===== MOBILE TAB BAR ===== -->
   <nav class="mobile-tabs" role="tablist" aria-label="App sections">
@@ -364,9 +470,10 @@
   <script src="js/preview.js"></script>
   <script src="js/image.js"></script>
   <script src="js/pdf.js"></script>
-  <!-- Auth + Resume DB + My Resumes panel -->
+  <!-- Auth + Resume DB + My Resumes panel + Nav -->
   <script src="js/resume-db.js"></script>
   <script src="js/my-resumes.js"></script>
+  <script src="js/nav.js"></script>
   <script src="js/auth.js"></script>
 </body>
 </html>
