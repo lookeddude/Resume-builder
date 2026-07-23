@@ -236,25 +236,26 @@ window.TemplateEngine = {
     const photo = state.photo;
     const contactItems = this._contactItems(p);
 
-    // Build photo HTML
+    // Build photo HTML – use pre-cropped image when available (WYSIWYG)
     let photoHtml;
-    if (photo.src) {
-      const tx = photo.x || 0;
-      const ty = photo.y || 0;
-      const sc = photo.scale || 1;
+    if (photo.croppedSrc) {
+      /* croppedSrc is a 120px canvas crop – no CSS transforms needed */
       photoHtml = `
-        <div class="tpl3-photo-container" style="width:110px;height:110px;border-radius:50%;overflow:hidden;position:relative;background:#334155;border:3px solid rgba(255,255,255,0.3);box-shadow:0 0 0 6px rgba(255,255,255,0.08);">
-          <img src="${photo.src}"
-               style="position:absolute;top:0;left:0;transform:translate(${tx}px,${ty}px) scale(${sc});transform-origin:top left;pointer-events:none;user-select:none;max-width:none;max-height:none;"
-               alt="Profile photo" />
-        </div>
-      `;
+        <div class="tpl3-photo-container" style="width:110px;height:110px;border-radius:50%;overflow:hidden;position:relative;background:#334155;border:3px solid rgba(255,255,255,0.3);box-shadow:0 0 0 6px rgba(255,255,255,0.08);flex-shrink:0;">
+          <img src="${photo.croppedSrc}" alt="Profile" style="width:110px;height:110px;object-fit:cover;display:block;" />
+        </div>`;
+    } else if (photo.src) {
+      /* Fallback: CSS-transform approach (before first adjustment) */
+      const tx = photo.x || 0, ty = photo.y || 0, sc = photo.scale || 1;
+      photoHtml = `
+        <div class="tpl3-photo-container" style="width:110px;height:110px;border-radius:50%;overflow:hidden;position:relative;background:#334155;border:3px solid rgba(255,255,255,0.3);box-shadow:0 0 0 6px rgba(255,255,255,0.08);flex-shrink:0;">
+          <img src="${photo.src}" style="position:absolute;top:0;left:0;transform:translate(${tx}px,${ty}px) scale(${sc});transform-origin:top left;pointer-events:none;user-select:none;max-width:none;max-height:none;" alt="Profile photo" />
+        </div>`;
     } else {
       photoHtml = `
-        <div class="tpl3-photo-container tpl3-photo-placeholder" style="width:110px;height:110px;border-radius:50%;overflow:hidden;background:#334155;border:3px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:rgba(255,255,255,0.3);">
+        <div class="tpl3-photo-container tpl3-photo-placeholder" style="width:110px;height:110px;border-radius:50%;overflow:hidden;background:#334155;border:3px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:rgba(255,255,255,0.3);flex-shrink:0;">
           👤
-        </div>
-      `;
+        </div>`;
     }
 
     // SIDEBAR
@@ -388,7 +389,14 @@ window.TemplateEngine = {
 
     /* ── Photo ── */
     let photoHtml;
-    if (photo.src) {
+    if (photo.croppedSrc) {
+      /* Pre-cropped at 120px – renders identically in preview and PDF */
+      photoHtml = `
+        <div style="width:110px;height:110px;border-radius:50%;overflow:hidden;position:relative;
+                    border:3px solid #3B82F6;box-shadow:0 0 0 5px rgba(59,130,246,0.2);margin:0 auto 20px;">
+          <img src="${photo.croppedSrc}" alt="Profile" style="width:110px;height:110px;object-fit:cover;display:block;" />
+        </div>`;
+    } else if (photo.src) {
       const tx = photo.x || 0, ty = photo.y || 0, sc = photo.scale || 1;
       photoHtml = `
         <div style="width:100px;height:100px;border-radius:50%;overflow:hidden;position:relative;
@@ -429,13 +437,14 @@ window.TemplateEngine = {
     if (state.skills.length > 0) {
       const pills = state.skills.map(s =>
         `<span style="display:inline-block;background:rgba(59,130,246,0.18);color:#93C5FD;
-                font-size:7.5pt;padding:2px 8px;border-radius:100px;margin:2px 3px 2px 0;border:1px solid rgba(59,130,246,0.3);">${this._esc(s)}</span>`
+                font-size:7.5pt;padding:2px 8px;border-radius:100px;margin:2px 3px 2px 0;
+                border:1px solid rgba(59,130,246,0.3);white-space:nowrap;">${this._esc(s)}</span>`
       ).join('');
       sidebarParts.push(`
         <div style="margin-bottom:20px;">
           <div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#60A5FA;
                       border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:6px;margin-bottom:10px;">Skills</div>
-          <div style="line-height:1.8;">${pills}</div>
+          <div style="width:180px;max-width:100%;line-height:1.9;">${pills}</div>
         </div>`);
     }
 

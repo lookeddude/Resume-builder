@@ -48,16 +48,18 @@ window.ResumeApp = {
   // ─── Save full state to localStorage ───
   saveStateDraft() {
     try {
+      const p = this.state.photo;
       const draft = {
-        template  : this.state.template,
-        personal  : { ...this.state.personal },
-        skills    : [...this.state.skills],
-        education : JSON.parse(JSON.stringify(this.state.education)),
-        experience: JSON.parse(JSON.stringify(this.state.experience)),
-        projects  : JSON.parse(JSON.stringify(this.state.projects)),
+        template      : this.state.template,
+        personal      : { ...this.state.personal },
+        skills        : [...this.state.skills],
+        education     : JSON.parse(JSON.stringify(this.state.education)),
+        experience    : JSON.parse(JSON.stringify(this.state.experience)),
+        projects      : JSON.parse(JSON.stringify(this.state.projects)),
         customSections: JSON.parse(JSON.stringify(this.state.customSections)),
-        photo     : { ...this.state.photo },
-        savedAt   : Date.now(),
+        /* Store only the 4 raw photo fields – NOT croppedSrc (avoids bloating storage) */
+        photo         : { src: p.src, x: p.x, y: p.y, scale: p.scale },
+        savedAt       : Date.now(),
       };
       localStorage.setItem(this._DRAFT_KEY, JSON.stringify(draft));
     } catch(e) { /* storage might be full or unavailable */ }
@@ -111,6 +113,26 @@ window.ResumeApp = {
         document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
         tplInput.closest('.template-card')?.classList.add('active');
         this._handleTemplateVisibility();
+      }
+
+      /* Rebuild photo editor UI + regenerate croppedSrc if photo was saved */
+      if (this.state.photo.src) {
+        const photoDropZone = document.getElementById('photoDropZone');
+        const photoEditor   = document.getElementById('photoEditor');
+        const photoImg      = document.getElementById('photoImg');
+        if (photoDropZone) photoDropZone.style.display = 'none';
+        if (photoEditor)   photoEditor.style.display   = 'flex';
+        if (photoImg) {
+          photoImg.src = this.state.photo.src;
+          photoImg.onload = () => {
+            window.ImageManager?._applyTransform();
+            this.schedulePreview();
+          };
+          /* If image is already cached (data URL), onload may not fire – force it */
+          if (photoImg.complete && photoImg.naturalWidth > 0) {
+            window.ImageManager?._applyTransform();
+          }
+        }
       }
 
       this.schedulePreview();
