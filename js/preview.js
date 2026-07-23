@@ -66,15 +66,7 @@ window.PreviewManager = {
     const { A4_W, A4_H } = this;
 
     /* 1. Generate HTML */
-    let html;
-    try {
-      html = window.TemplateEngine.render(state);
-    } catch (err) {
-      html = `<div style="padding:40px;font-family:sans-serif;color:#DC2626;">
-        <h3>⚠️ Template render error</h3>
-        <p style="font-size:12px;color:#6B7280;">${err.message}</p>
-      </div>`;
-    }
+    const html = window.TemplateEngine.render(state);
 
     /* 2. Measure real rendered height via staging */
     const staging = this._getStaging();

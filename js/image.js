@@ -114,36 +114,6 @@ window.ImageManager = {
     img.style.transformOrigin = 'top left';
     img.style.maxWidth = 'none';
     img.style.maxHeight = 'none';
-    // Pre-crop for WYSIWYG in templates + PDF
-    this._updateCroppedSrc(photo, img);
-  },
-
-  // ─── Pre-crop photo to canvas so templates render pixel-perfect ───
-  //   Stored as photo.croppedSrc; used by templates instead of CSS transforms.
-  _updateCroppedSrc(photo, img) {
-    const FRAME = 120;   /* must match .photo-frame size in form.css */
-    if (!img || !img.complete || img.naturalWidth === 0) {
-      photo.croppedSrc = null;
-      return;
-    }
-    try {
-      const { x, y, scale } = photo;
-      const canvas = document.createElement('canvas');
-      canvas.width  = FRAME;
-      canvas.height = FRAME;
-      const ctx = canvas.getContext('2d');
-      // Container pixel (cx,cy) = image pixel ((cx-x)/scale, (cy-y)/scale)
-      // So for container top-left (0,0): source is (-x/scale, -y/scale)
-      ctx.drawImage(
-        img,
-        -x / scale, -y / scale,   /* source x, y  */
-        FRAME / scale, FRAME / scale, /* source w, h */
-        0, 0, FRAME, FRAME         /* dest         */
-      );
-      photo.croppedSrc = canvas.toDataURL('image/jpeg', 0.92);
-    } catch (e) {
-      photo.croppedSrc = null; /* cross-origin or other error – fall back */
-    }
   },
 
   // ─── Zoom Controls ───
@@ -292,7 +262,6 @@ window.ImageManager = {
     photo.x = 0;
     photo.y = 0;
     photo.scale = 1.0;
-    photo.croppedSrc = null;
     this._imgNaturalSize = { w: 0, h: 0 };
 
     const photoImg = document.getElementById('photoImg');

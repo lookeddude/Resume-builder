@@ -28,7 +28,7 @@
 .template-selector-section { margin-bottom: var(--space-6); }
 .template-cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-3);
 }
 .template-card {
@@ -102,11 +102,7 @@
 }
 .tpl-dot-simple { background: var(--gray-500); }
 .tpl-dot-modern { background: var(--primary); }
-.tpl-dot-pro    { background: var(--accent); }
-.tpl-dot-premium {
-  background: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
-  box-shadow: 0 0 0 2px rgba(245,158,11,0.2);
-}
+.tpl-dot-pro { background: var(--accent); }
 
 /* Modern template mini */
 .tpl-modern {
@@ -145,47 +141,6 @@
   flex-shrink: 0;
 }
 .tpl-pro-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
-
-/* Premium template mini */
-.tpl-premium {
-  flex-direction: row;
-  gap: 0;
-  padding: 0;
-  overflow: hidden;
-}
-.tpl-premium-sidebar {
-  width: 32%;
-  background: #1A2332;
-  height: 100%;
-  flex-shrink: 0;
-  padding: 5px 4px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-}
-.tpl-photo-sm {
-  width: 16px; height: 16px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #3B82F6, #7C3AED);
-  border: 1.5px solid #3B82F6;
-  flex-shrink: 0;
-  margin-bottom: 2px;
-}
-.tpl-line-xs {
-  height: 3px;
-  width: 80%;
-  border-radius: 2px;
-  background: rgba(255,255,255,0.35);
-}
-.tpl-premium-main {
-  flex: 1;
-  padding: 5px 5px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  background: #fff;
-}
 
 /* ─── Form Grid ─── */
 .form-grid-2 {
@@ -584,13 +539,10 @@
 }
 @media (max-width: 768px) {
   .form-grid-2 { grid-template-columns: 1fr 1fr; }
-  .template-cards { grid-template-columns: repeat(4, 1fr); }
-}
-@media (max-width: 540px) {
-  .template-cards { grid-template-columns: repeat(2, 1fr); }
+  .template-cards { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 480px) {
   .form-grid-2 { grid-template-columns: 1fr; }
-  .template-cards { grid-template-columns: repeat(2, 1fr); }
+  .template-cards { grid-template-columns: repeat(3, 1fr); }
   .photo-editor { flex-direction: column; align-items: center; }
 }

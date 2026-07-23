@@ -48,18 +48,16 @@ window.ResumeApp = {
   // ─── Save full state to localStorage ───
   saveStateDraft() {
     try {
-      const p = this.state.photo;
       const draft = {
-        template      : this.state.template,
-        personal      : { ...this.state.personal },
-        skills        : [...this.state.skills],
-        education     : JSON.parse(JSON.stringify(this.state.education)),
-        experience    : JSON.parse(JSON.stringify(this.state.experience)),
-        projects      : JSON.parse(JSON.stringify(this.state.projects)),
+        template  : this.state.template,
+        personal  : { ...this.state.personal },
+        skills    : [...this.state.skills],
+        education : JSON.parse(JSON.stringify(this.state.education)),
+        experience: JSON.parse(JSON.stringify(this.state.experience)),
+        projects  : JSON.parse(JSON.stringify(this.state.projects)),
         customSections: JSON.parse(JSON.stringify(this.state.customSections)),
-        /* Store only the 4 raw photo fields – NOT croppedSrc (avoids bloating storage) */
-        photo         : { src: p.src, x: p.x, y: p.y, scale: p.scale },
-        savedAt       : Date.now(),
+        photo     : { ...this.state.photo },
+        savedAt   : Date.now(),
       };
       localStorage.setItem(this._DRAFT_KEY, JSON.stringify(draft));
     } catch(e) { /* storage might be full or unavailable */ }
@@ -113,26 +111,6 @@ window.ResumeApp = {
         document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
         tplInput.closest('.template-card')?.classList.add('active');
         this._handleTemplateVisibility();
-      }
-
-      /* Rebuild photo editor UI + regenerate croppedSrc if photo was saved */
-      if (this.state.photo.src) {
-        const photoDropZone = document.getElementById('photoDropZone');
-        const photoEditor   = document.getElementById('photoEditor');
-        const photoImg      = document.getElementById('photoImg');
-        if (photoDropZone) photoDropZone.style.display = 'none';
-        if (photoEditor)   photoEditor.style.display   = 'flex';
-        if (photoImg) {
-          photoImg.src = this.state.photo.src;
-          photoImg.onload = () => {
-            window.ImageManager?._applyTransform();
-            this.schedulePreview();
-          };
-          /* If image is already cached (data URL), onload may not fire – force it */
-          if (photoImg.complete && photoImg.naturalWidth > 0) {
-            window.ImageManager?._applyTransform();
-          }
-        }
       }
 
       this.schedulePreview();
@@ -195,111 +173,122 @@ window.ResumeApp = {
 
   // ─── Load Sample Data ───
   loadSampleData() {
-    const isPremium = this.state.template === 4;
-    const fm = window.FormManager;
-
-    // ── Personal ──
-    this.state.personal = isPremium ? {
-      fullName: 'Rajnish Kumar', jobTitle: 'Lead Software Architect',
-      email: 'rajnish.kumar@email.dev', phone: '+91 98765 43210',
-      address: 'Mumbai, Maharashtra, India',
-      linkedin: 'https://linkedin.com/in/rajnish-kumar',
-      summary: 'Forward-thinking Software Architect with 8+ years of experience designing and executing enterprise web architectures. Proven expertise in React, Node.js, Cloud Services, and building scalable SaaS applications. Committed to clean code, performance optimization, and mentoring cross-functional engineering teams.'
-    } : {
-      fullName: 'Alexandra Chen', jobTitle: 'Senior Full-Stack Engineer',
-      email: 'alex.chen@email.com', phone: '+1 (415) 867-5309',
-      address: 'San Francisco, CA',
-      linkedin: 'https://linkedin.com/in/alexchen-dev',
-      summary: 'Passionate full-stack engineer with 6+ years of experience building scalable web applications and distributed systems. Led cross-functional teams to ship products used by millions of users. Strong expertise in React, Node.js, and cloud infrastructure.'
+    // Set state with rich sample data
+    this.state.personal = {
+      fullName:  'Alexandra Chen',
+      jobTitle:  'Senior Full-Stack Engineer',
+      email:     'alex.chen@email.com',
+      phone:     '+1 (415) 867-5309',
+      address:   'San Francisco, CA',
+      linkedin:  'https://linkedin.com/in/alexchen-dev',
+      summary:   'Passionate full-stack engineer with 6+ years of experience building scalable web applications and distributed systems. Led cross-functional teams to ship products used by millions of users. Strong expertise in React, Node.js, and cloud infrastructure. Adept at translating complex business requirements into elegant, maintainable solutions.'
     };
 
-    // ── Skills ──
-    this.state.skills = isPremium ? [
-      'JavaScript (ES6+)', 'TypeScript', 'Go', 'Python', 'SQL', 'HTML/CSS',
-      'React', 'Node.js', 'Express', 'Next.js', 'Redux Toolkit', 'TailwindCSS',
-      'Git', 'Docker', 'AWS (S3/EC2)', 'PostgreSQL', 'MongoDB', 'Redis', 'GraphQL'
-    ] : [
+    this.state.skills = [
       'JavaScript', 'TypeScript', 'React', 'Node.js',
       'Python', 'PostgreSQL', 'MongoDB', 'GraphQL',
       'Docker', 'Kubernetes', 'AWS', 'CI/CD', 'Git'
     ];
 
-    // ── Education ──
-    this.state.education = isPremium ? [
-      { _id: 1, degree: 'B.Tech in Computer Science & Engineering',
-        school: 'Indian Institute of Technology (IIT)', field: 'Computer Science & Engineering',
-        period: '2016-07 – 2020-05', gpa: '8.9/10',
-        description: 'Specialized in Algorithms, Distributed Systems, and Advanced Database Systems. Graduated with Honors.' }
-    ] : [
-      { _id: 1, degree: 'B.Sc. Computer Science',
-        school: 'University of California, Berkeley', field: 'Computer Science & Engineering',
-        period: '2014 – 2018', gpa: '3.85 / 4.0',
-        description: 'Dean\'s List — 4 consecutive years' },
-      { _id: 2, degree: 'AWS Certified Solutions Architect',
-        school: 'Amazon Web Services', field: 'Cloud Computing',
-        period: 'Mar 2021', gpa: '',
-        description: 'Professional-level certification covering cloud architecture, security, and cost optimization.' }
-    ];
-    fm._counters.education = this.state.education.length;
+    // Give each entry a unique _id and update counters
+    const fm = window.FormManager;
+    fm._counters.education = 2;
+    fm._counters.experience = 3;
+    fm._counters.projects = 3;
+    fm._counters.custom = 2;
 
-    // ── Experience ──
-    this.state.experience = isPremium ? [
-      { _id: 1, position: 'Lead Software Engineer', company: 'Tech Solutions Inc.',
-        location: 'Mumbai', period: '2023-01 – Present',
-        description: '- Architected a cloud-native real-time analytics platform serving 10M+ daily active users, improving scalability by 40%.\n- Led a team of 8 engineers using agile methodologies to ship product features ahead of deadlines.\n- Optimized webpack configs and code-splitting, slashing initial bundle load times by 2.5 seconds.' },
-      { _id: 2, position: 'Senior Full Stack Developer', company: 'Innovate Hub',
-        location: 'Bengaluru', period: '2020-05 – 2022-12',
-        description: '- Migrated legacy monolith systems to highly modular microservices using Docker and AWS ECS.\n- Authored re-usable component libraries with styled-components, reducing UI design-to-dev handoff times by 30%.\n- Integrated multiple secure payment gateways, processing $5M+ in online transactions.' }
-    ] : [
-      { _id: 1, position: 'Senior Full-Stack Engineer', company: 'TechVision Inc.',
-        location: 'San Francisco, CA', period: 'Jan 2022 – Present',
-        description: '• Led a team of 5 engineers to redesign the core platform, reducing page load times by 60%\n• Architected microservices migration from a monolith, improving deployment frequency by 4×\n• Introduced GraphQL API layer, reducing over-fetching and cutting bandwidth costs by 35%' },
-      { _id: 2, position: 'Full-Stack Developer', company: 'DataFlow Labs',
-        location: 'Remote', period: 'Jun 2020 – Dec 2021',
-        description: '• Built real-time analytics dashboard processing 2M+ events/day using React and Apache Kafka\n• Designed REST APIs serving 50K+ daily active users\n• Reduced infrastructure costs by 28% through strategic AWS resource optimization' },
-      { _id: 3, position: 'Frontend Developer', company: 'Pixel Studios',
-        location: 'New York, NY', period: 'Aug 2018 – May 2020',
-        description: '• Developed responsive UI components in React used across 12 client projects\n• Integrated third-party APIs (Stripe, Twilio, Mapbox) into production applications\n• Improved test coverage from 40% to 92% using Jest and React Testing Library' }
+    this.state.education = [
+      {
+        _id: 1,
+        degree:      'B.Sc. Computer Science',
+        school:      'University of California, Berkeley',
+        field:       'Computer Science & Engineering',
+        period:      '2014 – 2018',
+        gpa:         '3.85 / 4.0',
+        description: 'Dean\'s List — 4 consecutive years\nThesis: "Optimizing Distributed Consensus Algorithms for Edge Networks"'
+      },
+      {
+        _id: 2,
+        degree:      'AWS Certified Solutions Architect',
+        school:      'Amazon Web Services',
+        field:       'Cloud Computing',
+        period:      'Mar 2021',
+        gpa:         '',
+        description: 'Professional-level certification covering cloud architecture, security, and cost optimization.'
+      }
     ];
-    fm._counters.experience = this.state.experience.length;
 
-    // ── Projects ──
-    this.state.projects = isPremium ? [
-      { _id: 1, name: 'CollabDoc – Realtime Collaborative Editor',
-        tech: 'React, Socket.io, Node.js, Redis', link: '', period: '2023',
-        description: 'A Google-docs style collaborative text editor using operational transformation algorithms for operational consistency and real-time syncing across users.' },
-      { _id: 2, name: 'SafePay Gateway Engine',
-        tech: 'Golang, PostgreSQL, Docker, AWS', link: '', period: '2022',
-        description: 'A robust, high-throughput payment transaction router handling parallel request queuing, retry mechanisms, and PCI-DSS compliance audits.' }
-    ] : [
-      { _id: 1, name: 'OpenFlow – Workflow Automation',
-        tech: 'React, Node.js, PostgreSQL, Docker', link: 'https://github.com/alexchen/openflow', period: '2023',
-        description: '• Open-source no-code workflow builder with 1,200+ GitHub stars\n• Supports 30+ integrations including Slack, GitHub, and Notion\n• Handles 500K+ workflow runs per month on AWS ECS' },
-      { _id: 2, name: 'ML Price Predictor',
-        tech: 'Python, FastAPI, TensorFlow, Redis', link: '', period: '2022',
-        description: '• Real-time price prediction service using LSTM neural networks\n• Achieves 94.2% accuracy on historical test data\n• Predictions served with <50ms latency via Redis caching' },
-      { _id: 3, name: 'DevPulse – Developer Analytics',
-        tech: 'Next.js, GraphQL, MongoDB, Vercel', link: 'https://devpulse.app', period: '2021',
-        description: '• SaaS dashboard aggregating GitHub, Jira, and GitLab metrics\n• Acquired 800+ paying customers within 6 months of launch\n• Featured in Product Hunt Top 10 of the day' }
+    this.state.experience = [
+      {
+        _id: 1,
+        position:    'Senior Full-Stack Engineer',
+        company:     'TechVision Inc.',
+        location:    'San Francisco, CA',
+        period:      'Jan 2022 – Present',
+        description: '• Led a team of 5 engineers to redesign the core platform, reducing page load times by 60%\n• Architected microservices migration from a monolith, improving deployment frequency by 4×\n• Introduced GraphQL API layer, reducing over-fetching and cutting bandwidth costs by 35%\n• Mentored 3 junior engineers, conducting weekly code reviews and pair programming sessions'
+      },
+      {
+        _id: 2,
+        position:    'Full-Stack Developer',
+        company:     'DataFlow Labs',
+        location:    'Remote',
+        period:      'Jun 2020 – Dec 2021',
+        description: '• Built real-time analytics dashboard processing 2M+ events/day using React and Apache Kafka\n• Designed and implemented REST APIs serving 50K+ daily active users\n• Reduced infrastructure costs by 28% through strategic AWS resource optimization'
+      },
+      {
+        _id: 3,
+        position:    'Frontend Developer',
+        company:     'Pixel Studios',
+        location:    'New York, NY',
+        period:      'Aug 2018 – May 2020',
+        description: '• Developed responsive UI components in React used across 12 client projects\n• Integrated third-party APIs (Stripe, Twilio, Mapbox) into production applications\n• Improved test coverage from 40% to 92% using Jest and React Testing Library'
+      }
     ];
-    fm._counters.projects = this.state.projects.length;
 
-    // ── Custom Sections ──
-    this.state.customSections = isPremium ? [
-      { _id: 1, title: 'Certifications',
-        content: 'AWS Certified Solutions Architect (Associate)\nScrum Alliance Certified ScrumMaster (CSM)\nAdvanced Data Structures (Stanford Online)' },
-      { _id: 2, title: 'Languages Spoken',
-        content: 'English (Fluent)\nHindi (Native)\nMarathi (Native)' }
-    ] : [
-      { _id: 1, title: 'Certifications & Awards',
-        content: 'AWS Certified Solutions Architect – Professional (2021)\nGoogle Cloud Professional Data Engineer (2022)\nEmployee of the Quarter — TechVision Inc. (Q3 2023)\nHackathon Winner – Global AI Hackathon 2022 (1st Place out of 340 teams)' },
-      { _id: 2, title: 'Languages & Interests',
-        content: 'Languages: English (Native), Mandarin (Fluent), Spanish (Conversational)\nInterests: Open-source contribution, technical blogging, competitive programming, hiking' }
+    this.state.projects = [
+      {
+        _id: 1,
+        name:        'OpenFlow – Workflow Automation',
+        tech:        'React, Node.js, PostgreSQL, Docker',
+        link:        'https://github.com/alexchen/openflow',
+        period:      '2023',
+        description: '• Open-source no-code workflow builder with 1,200+ GitHub stars\n• Supports 30+ integrations including Slack, GitHub, and Notion\n• Deployed on AWS ECS with auto-scaling; handles 500K+ workflow runs per month'
+      },
+      {
+        _id: 2,
+        name:        'ML Price Predictor',
+        tech:        'Python, FastAPI, TensorFlow, Redis',
+        link:        'https://github.com/alexchen/ml-price',
+        period:      '2022',
+        description: '• Real-time price prediction service using LSTM neural networks\n• Achieves 94.2% accuracy on historical test data\n• API serves predictions with < 50ms latency via Redis caching layer'
+      },
+      {
+        _id: 3,
+        name:        'DevPulse – Developer Analytics',
+        tech:        'Next.js, GraphQL, MongoDB, Vercel',
+        link:        'https://devpulse.app',
+        period:      '2021',
+        description: '• SaaS dashboard aggregating GitHub, Jira, and GitLab metrics for dev teams\n• Acquired 800+ paying customers within 6 months of launch\n• Featured in Product Hunt Top 10 of the day'
+      }
     ];
-    fm._counters.custom = this.state.customSections.length;
 
-    // Rebuild form UI + preview
+    this.state.customSections = [
+      {
+        _id: 1,
+        title:   'Certifications & Awards',
+        content: 'AWS Certified Solutions Architect – Professional (2021)\nGoogle Cloud Professional Data Engineer (2022)\nEmployee of the Quarter — TechVision Inc. (Q3 2023)\nHackathon Winner – Global AI Hackathon 2022 (1st Place out of 340 teams)'
+      },
+      {
+        _id: 2,
+        title:   'Languages & Interests',
+        content: 'Languages: English (Native), Mandarin (Fluent), Spanish (Conversational)\nInterests: Open-source contribution, technical blogging, competitive programming, hiking'
+      }
+    ];
+
+    // Rebuild the form UI from the new state
     window.FormManager.populateForm();
+
+    // Render the preview
     this.schedulePreview();
     this.showToast('✨ Sample data loaded!', 'success');
   },
@@ -372,10 +361,9 @@ window.ResumeApp = {
   },
 
   _handleTemplateVisibility() {
-    const needsPhoto   = this.state.template === 3 || this.state.template === 4;
-    const needsCustom  = this.state.template === 3 || this.state.template === 4;
-    document.getElementById('photoSection').style.display          = needsPhoto  ? 'block' : 'none';
-    document.getElementById('customSectionsWrapper').style.display = needsCustom ? 'block' : 'none';
+    const isT3 = this.state.template === 3;
+    document.getElementById('photoSection').style.display = isT3 ? 'block' : 'none';
+    document.getElementById('customSectionsWrapper').style.display = isT3 ? 'block' : 'none';
   },
 
   async _updateResumeCountBadge() {
