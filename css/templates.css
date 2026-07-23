@@ -308,18 +308,19 @@
 }
 .tpl3-summary { font-size: 9.5pt; color: #475569; line-height: 1.7; }
 .tpl3-skill {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 9pt;
-  color: #334155;
+  display: block;
   padding: 3px 0;
+  line-height: 1;
 }
 .tpl3-skill-dot {
-  width: 6px; height: 6px;
+  display: inline-block;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: #7C3AED;
-  flex-shrink: 0;
+  vertical-align: middle;
+  margin-right: 8px;
+  margin-bottom: 2px;
 }
 .tpl3-entry { margin-bottom: 18px; }
 .tpl3-entry-header {

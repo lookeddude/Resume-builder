@@ -263,11 +263,12 @@ window.TemplateEngine = {
 
     if (state.skills.length > 0) {
       const skillItems = state.skills.map(s => `
-        <div class="tpl3-skill">
-          <span style="display:flex;align-items:center;gap:8px;">
-            <span class="tpl3-skill-dot" style="width:6px;height:6px;border-radius:50%;background:#7C3AED;flex-shrink:0;display:inline-block;"></span>
-            ${this._esc(s)}
-          </span>
+        <div style="display:block;padding:3px 0;line-height:1;">
+          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;
+                       background:#7C3AED;vertical-align:middle;margin-right:8px;
+                       margin-bottom:2px;"></span>
+          <span style="display:inline;vertical-align:middle;font-size:9pt;color:#334155;
+                       padding-bottom:3px;">${this._esc(s)}</span>
         </div>
       `).join('');
       sidebarParts.push(`
