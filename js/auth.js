@@ -213,7 +213,41 @@ window.AuthManager = {
                 <div class="btn-spinner"></div>
                 <span class="btn-text" id="authSubmitText">Login</span>
               </button>
+
+              <!-- Forgot password link (login mode only) -->
+              <div style="text-align:center;margin-top:10px;" id="authForgotRow">
+                <button type="button" id="authForgotBtn"
+                  style="background:none;border:none;color:#6366f1;font-size:13px;
+                         cursor:pointer;text-decoration:underline;padding:0;">
+                  Forgot password?
+                </button>
+              </div>
             </form>
+
+            <!-- ── Reset Password Section ── -->
+            <div id="resetSection" style="display:none;margin-top:4px;">
+              <div style="text-align:center;margin-bottom:14px;">
+                <div style="font-size:2rem;margin-bottom:6px;">🔑</div>
+                <div style="font-size:15px;font-weight:700;color:#1e293b;">Reset your password</div>
+                <div style="font-size:12px;color:#64748b;margin-top:4px;">Enter your email and we'll send a reset link</div>
+              </div>
+              <div class="auth-field">
+                <label for="resetEmailInput">Email Address</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+                  <input class="auth-input" type="email" id="resetEmailInput" placeholder="you@example.com" autocomplete="email"/>
+                </div>
+              </div>
+              <button class="auth-submit-btn" id="resetSubmitBtn" style="margin-top:4px;">
+                <div class="btn-spinner"></div>
+                <span class="btn-text">Send Reset Email</span>
+              </button>
+              <div style="text-align:center;margin-top:10px;">
+                <button type="button" id="resetBackBtn"
+                  style="background:none;border:none;color:#6366f1;font-size:13px;
+                         cursor:pointer;text-decoration:underline;padding:0;">← Back to Login</button>
+              </div>
+            </div>
 
             <!-- ── OTP form ── -->
             <div id="otpSection" style="display:none;">
@@ -291,6 +325,21 @@ window.AuthManager = {
     document.getElementById('authTabSignup').addEventListener('click', () => this._setMode('signup'));
     document.getElementById('authTabOtp').addEventListener('click',    () => this._setMode('otp'));
 
+    /* Forgot password */
+    document.getElementById('authForgotBtn').addEventListener('click', () => {
+      document.getElementById('authForm').style.display     = 'none';
+      document.getElementById('authForgotRow').style.display = 'none';
+      document.getElementById('resetSection').style.display = 'block';
+      document.getElementById('resetEmailInput').value =
+        document.getElementById('authEmailInput').value || '';
+    });
+    document.getElementById('resetBackBtn').addEventListener('click', () => {
+      document.getElementById('resetSection').style.display = 'none';
+      document.getElementById('authForm').style.display     = 'block';
+      document.getElementById('authForgotRow').style.display = 'block';
+    });
+    document.getElementById('resetSubmitBtn').addEventListener('click', () => this._handleResetPassword());
+
     /* Footer switch */
     document.getElementById('authSwitchBtn').addEventListener('click', () => {
       this._setMode(this._mode === 'login' ? 'signup' : 'login');
@@ -366,10 +415,14 @@ window.AuthManager = {
       tab.setAttribute('aria-selected', String(active));
     });
 
+    /* Always hide reset section when switching tabs */
+    document.getElementById('resetSection').style.display  = 'none';
     document.getElementById('authForm').style.display      = isOtp ? 'none' : 'block';
     document.getElementById('otpSection').style.display    = isOtp ? 'block' : 'none';
     document.getElementById('authNameField').style.display = isSignup ? 'block' : 'none';
     document.getElementById('authFooterLink').style.display = isOtp ? 'none' : 'block';
+    /* Show forgot link only on login tab */
+    document.getElementById('authForgotRow').style.display = isLogin ? 'block' : 'none';
 
     document.getElementById('authSubmitText').textContent = isLogin ? 'Login' : 'Create Account';
 
@@ -387,6 +440,44 @@ window.AuthManager = {
 
     document.getElementById('authPasswordInput').autocomplete = isLogin ? 'current-password' : 'new-password';
     this._clearError();
+  },
+
+  /* ════════════════════════════════════════════
+     RESET PASSWORD
+  ════════════════════════════════════════════ */
+  async _handleResetPassword() {
+    const email = document.getElementById('resetEmailInput').value.trim();
+    const btn   = document.getElementById('resetSubmitBtn');
+
+    if (!this._validateEmail(email)) {
+      document.getElementById('resetEmailInput').style.borderColor = '#ef4444';
+      document.getElementById('resetEmailInput').placeholder = 'Enter a valid email';
+      return;
+    }
+    document.getElementById('resetEmailInput').style.borderColor = '';
+
+    this._setLoading(btn, true);
+    try {
+      const { error } = await this._client.auth.resetPasswordForEmail(email, {
+        redirectTo: `${this.SITE_URL}?reset=true`,
+      });
+      if (error) throw error;
+
+      /* Show success state */
+      document.getElementById('resetSection').innerHTML = `
+        <div style="text-align:center;padding:20px 0;">
+          <div style="font-size:3rem;margin-bottom:12px;">📧</div>
+          <div style="font-size:16px;font-weight:700;color:#1e293b;margin-bottom:8px;">Check your inbox!</div>
+          <div style="font-size:13px;color:#64748b;line-height:1.6;">
+            A password reset link has been sent to<br>
+            <strong style="color:#6366f1;">${email}</strong>
+          </div>
+          <div style="font-size:12px;color:#94a3b8;margin-top:10px;">Check spam folder if not visible</div>
+        </div>`;
+    } catch (err) {
+      this._setLoading(btn, false);
+      this._showError(err.message || 'Failed to send reset email. Try again.');
+    }
   },
 
   /* ════════════════════════════════════════════
