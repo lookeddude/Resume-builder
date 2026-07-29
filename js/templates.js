@@ -61,6 +61,11 @@ window.TemplateEngine = {
     return this._sectionOrder(state).filter(k => allowedKeys.includes(k));
   },
 
+  /* Get the user-customized section title, falling back to a default */
+  _title(state, key, fallback) {
+    return (state.sectionTitles && state.sectionTitles[key]) || fallback;
+  },
+
   // ===================================================
   // TEMPLATE 1 – SIMPLE
   // ===================================================
@@ -74,7 +79,7 @@ window.TemplateEngine = {
     // Summary is always first — not part of sectionOrder
     const summaryHtml = p.summary ? `
       <div class="tpl1-section">
-        <div class="tpl1-section-title">Professional Summary</div>
+        <div class="tpl1-section-title">${this._title(state,'summary','Professional Summary')}</div>
         <p class="tpl1-summary">${this._esc(p.summary)}</p>
       </div>` : null;
 
@@ -85,7 +90,7 @@ window.TemplateEngine = {
           color:#374151;background:#F3F4F6;border:1px solid #D1D5DB;
           border-radius:5px;padding:5px 13px;margin:0 5px 7px 0;">${this._esc(s)}</span>`
       ).join('');
-      sectionBlocks['skills'] = `<div class="tpl1-section"><div class="tpl1-section-title">Skills</div><div style="display:block;">${tags}</div></div>`;
+      sectionBlocks['skills'] = `<div class="tpl1-section"><div class="tpl1-section-title">${this._title(state,'skills','Skills')}</div><div style="display:block;">${tags}</div></div>`;
     }
 
     // Experience
@@ -99,7 +104,7 @@ window.TemplateEngine = {
           ${e.company ? `<div class="tpl1-entry-sub">${this._esc(e.company)}${e.location ? ` · ${this._esc(e.location)}` : ''}</div>` : ''}
           ${e.description ? `<div class="tpl1-entry-desc">${this._nl2bullets(e.description)}</div>` : ''}
         </div>`).join('');
-      sectionBlocks['experience'] = `<div class="tpl1-section"><div class="tpl1-section-title">Work Experience</div>${entries}</div>`;
+      sectionBlocks['experience'] = `<div class="tpl1-section"><div class="tpl1-section-title">${this._title(state,'experience','Work Experience')}</div>${entries}</div>`;
     }
 
     // Education
@@ -113,7 +118,7 @@ window.TemplateEngine = {
           ${e.school ? `<div class="tpl1-entry-sub">${this._esc(e.school)}${e.field ? ` · ${this._esc(e.field)}` : ''}${(e.gpaType || e.gpa) && e.gpa ? ` · ${this._esc(e.gpaType || 'GPA')}: ${this._esc(e.gpa)}` : ''}</div>` : ''}
           ${e.description ? `<div class="tpl1-entry-desc">${this._nl2bullets(e.description)}</div>` : ''}
         </div>`).join('');
-      sectionBlocks['education'] = `<div class="tpl1-section"><div class="tpl1-section-title">Education</div>${entries}</div>`;
+      sectionBlocks['education'] = `<div class="tpl1-section"><div class="tpl1-section-title">${this._title(state,'education','Education')}</div>${entries}</div>`;
     }
 
     // Projects
@@ -127,7 +132,7 @@ window.TemplateEngine = {
           ${e.tech ? `<div class="tpl1-entry-sub">${this._esc(e.tech)}${e.link ? ` · <a href="${this._esc(e.link)}" style="color:#444;">${this._esc(e.link.replace(/^https?:\/\//,''))}</a>` : ''}</div>` : ''}
           ${e.description ? `<div class="tpl1-entry-desc">${this._nl2bullets(e.description)}</div>` : ''}
         </div>`).join('');
-      sectionBlocks['projects'] = `<div class="tpl1-section"><div class="tpl1-section-title">Projects</div>${entries}</div>`;
+      sectionBlocks['projects'] = `<div class="tpl1-section"><div class="tpl1-section-title">${this._title(state,'projects','Projects')}</div>${entries}</div>`;
     }
 
     // Custom Sections
@@ -177,7 +182,7 @@ window.TemplateEngine = {
            <span style="font-size:9pt;color:#334155;vertical-align:middle;">${this._esc(s)}</span>
          </div>`
       ).join('');
-      leftBlocks['skills'] = `<div class="tpl2-section"><div class="tpl2-section-title">Skills</div><div style="display:block;">${items}</div></div>`;
+      leftBlocks['skills'] = `<div class="tpl2-section"><div class="tpl2-section-title">${this._title(state,'skills','Skills')}</div><div style="display:block;">${items}</div></div>`;
     }
 
     if (state.education.length > 0) {
@@ -189,12 +194,12 @@ window.TemplateEngine = {
           ${e.field ? `<div style="font-size:8.5pt;color:#64748B;">${this._esc(e.field)}</div>` : ''}
           ${(e.gpaType || e.gpa) && e.gpa ? `<div style="font-size:8.5pt;color:#64748B;">${this._esc(e.gpaType || 'GPA')}: ${this._esc(e.gpa)}</div>` : ''}
         </div>`).join('');
-      leftBlocks['education'] = `<div class="tpl2-section"><div class="tpl2-section-title">Education</div>${entries}</div>`;
+      leftBlocks['education'] = `<div class="tpl2-section"><div class="tpl2-section-title">${this._title(state,'education','Education')}</div>${entries}</div>`;
     }
 
     const rightParts = [];
     if (p.summary) {
-      rightParts.push(`<div class="tpl2-section"><div class="tpl2-section-title">About Me</div><p class="tpl2-summary">${this._esc(p.summary)}</p></div>`);
+      rightParts.push(`<div class="tpl2-section"><div class="tpl2-section-title">${this._title(state,'summary','About Me')}</div><p class="tpl2-summary">${this._esc(p.summary)}</p></div>`);
     }
 
     if (state.experience.length > 0) {
@@ -207,7 +212,7 @@ window.TemplateEngine = {
           ${e.company ? `<div class="tpl2-entry-sub">${this._esc(e.company)}${e.location ? ` · ${this._esc(e.location)}` : ''}</div>` : ''}
           ${e.description ? `<div class="tpl2-entry-desc">${this._nl2bullets(e.description)}</div>` : ''}
         </div>`).join('');
-      rightBlocks['experience'] = `<div class="tpl2-section"><div class="tpl2-section-title">Work Experience</div>${entries}</div>`;
+      rightBlocks['experience'] = `<div class="tpl2-section"><div class="tpl2-section-title">${this._title(state,'experience','Work Experience')}</div>${entries}</div>`;
     }
 
     if (state.projects.length > 0) {
@@ -220,11 +225,19 @@ window.TemplateEngine = {
           ${e.tech ? `<div class="tpl2-entry-sub">${this._esc(e.tech)}</div>` : ''}
           ${e.description ? `<div class="tpl2-entry-desc">${this._nl2bullets(e.description)}</div>` : ''}
         </div>`).join('');
-      rightBlocks['projects'] = `<div class="tpl2-section"><div class="tpl2-section-title">Projects</div>${entries}</div>`;
+      rightBlocks['projects'] = `<div class="tpl2-section"><div class="tpl2-section-title">${this._title(state,'projects','Projects')}</div>${entries}</div>`;
+    }
+
+    // Custom sections (T2 – right column)
+    if (state.customSections.length > 0) {
+      const customParts = state.customSections.map(cs =>
+        `<div class="tpl2-entry"><div class="tpl2-entry-title" style="font-size:9.5pt;">${this._esc(cs.title)}</div><div class="tpl2-entry-desc" style="font-size:9pt;color:#475569;">${this._esc(cs.content).replace(/\n/g,'<br>')}</div></div>`
+      ).join('');
+      rightBlocks['customSections'] = `<div class="tpl2-section"><div class="tpl2-section-title">Custom</div>${customParts}</div>`;
     }
 
     const leftParts = this._orderedKeys(state, ['skills', 'education']).map(k => leftBlocks[k]).filter(Boolean);
-    this._orderedKeys(state, ['experience', 'projects']).forEach(k => { if (rightBlocks[k]) rightParts.push(rightBlocks[k]); });
+    this._orderedKeys(state, ['experience', 'projects', 'customSections']).forEach(k => { if (rightBlocks[k]) rightParts.push(rightBlocks[k]); });
 
     return `
       <div class="tpl2-root">
@@ -282,7 +295,7 @@ window.TemplateEngine = {
           color:#5B21B6;background:#EDE9FE;border:1px solid #C4B5FD;
           border-radius:5px;padding:4px 11px;margin:0 4px 6px 0;">${this._esc(s)}</span>`
       ).join('');
-      sidebarBlocks['skills'] = `<div class="tpl3-section"><div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#7C3AED;border-bottom:2px solid #EDE9FE;margin-bottom:10px;padding-bottom:5px;">Skills</div><div style="display:block;">${badges}</div></div>`;
+      sidebarBlocks['skills'] = `<div class="tpl3-section"><div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#7C3AED;border-bottom:2px solid #EDE9FE;margin-bottom:10px;padding-bottom:5px;">${this._title(state,'skills','Skills')}</div><div style="display:block;">${badges}</div></div>`;
     }
 
     if (state.education.length > 0) {
@@ -294,7 +307,7 @@ window.TemplateEngine = {
           ${e.period ? `<div style="font-size:8.5pt;color:#94A3B8;">${this._esc(e.period)}</div>` : ''}
           ${(e.gpaType || e.gpa) && e.gpa ? `<div style="font-size:8.5pt;color:#64748B;">${this._esc(e.gpaType || 'GPA')}: ${this._esc(e.gpa)}</div>` : ''}
         </div>`).join('');
-      sidebarBlocks['education'] = `<div class="tpl3-section"><div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#7C3AED;border-bottom:2px solid #EDE9FE;margin-bottom:10px;padding-bottom:5px;">Education</div>${entries}</div>`;
+      sidebarBlocks['education'] = `<div class="tpl3-section"><div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#7C3AED;border-bottom:2px solid #EDE9FE;margin-bottom:10px;padding-bottom:5px;">${this._title(state,'education','Education')}</div>${entries}</div>`;
     }
 
     if (state.customSections.length > 0) {
@@ -315,7 +328,7 @@ window.TemplateEngine = {
     const mainParts = [];
 
     if (p.summary) {
-      mainParts.push(`<div class="tpl3-section"><div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#1D4ED8;border-bottom:2px solid #BFDBFE;margin-bottom:10px;padding-bottom:5px;">Professional Summary</div><p class="tpl3-summary" style="font-size:9.5pt;color:#475569;line-height:1.7;margin:0;">${this._esc(p.summary)}</p></div>`);
+      mainParts.push(`<div class="tpl3-section"><div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#1D4ED8;border-bottom:2px solid #BFDBFE;margin-bottom:10px;padding-bottom:5px;">${this._title(state,'summary','Professional Summary')}</div><p class="tpl3-summary" style="font-size:9.5pt;color:#475569;line-height:1.7;margin:0;">${this._esc(p.summary)}</p></div>`);
     }
 
     if (state.experience.length > 0) {
@@ -328,7 +341,7 @@ window.TemplateEngine = {
           ${e.company ? `<div style="font-size:9.5pt;color:#7C3AED;font-weight:500;margin-bottom:5px;">${this._esc(e.company)}${e.location ? ` · ${this._esc(e.location)}` : ''}</div>` : ''}
           ${e.description ? `<div>${this._nl2bullets(e.description)}</div>` : ''}
         </div>`).join('');
-      mainBlocks['experience'] = `<div class="tpl3-section"><div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#1D4ED8;border-bottom:2px solid #BFDBFE;margin-bottom:10px;padding-bottom:5px;">Work Experience</div>${entries}</div>`;
+      mainBlocks['experience'] = `<div class="tpl3-section"><div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#1D4ED8;border-bottom:2px solid #BFDBFE;margin-bottom:10px;padding-bottom:5px;">${this._title(state,'experience','Work Experience')}</div>${entries}</div>`;
     }
 
     if (state.projects.length > 0) {
@@ -341,7 +354,7 @@ window.TemplateEngine = {
           ${e.tech ? `<div style="font-size:9.5pt;color:#7C3AED;font-weight:500;margin-bottom:5px;">${this._esc(e.tech)}${e.link ? ` · <a href="${this._esc(e.link)}" style="color:#1D4ED8;">${this._esc(e.link.replace(/^https?:\/\//,''))}</a>` : ''}</div>` : ''}
           ${e.description ? `<div>${this._nl2bullets(e.description)}</div>` : ''}
         </div>`).join('');
-      mainBlocks['projects'] = `<div class="tpl3-section"><div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#1D4ED8;border-bottom:2px solid #BFDBFE;margin-bottom:10px;padding-bottom:5px;">Projects</div>${entries}</div>`;
+      mainBlocks['projects'] = `<div class="tpl3-section"><div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#1D4ED8;border-bottom:2px solid #BFDBFE;margin-bottom:10px;padding-bottom:5px;">${this._title(state,'projects','Projects')}</div>${entries}</div>`;
     }
 
     this._orderedKeys(state, ['experience', 'projects']).forEach(k => { if (mainBlocks[k]) mainParts.push(mainBlocks[k]); });
@@ -431,7 +444,7 @@ window.TemplateEngine = {
           border-radius:5px;padding:4px 10px;margin:0 4px 6px 0;
           white-space:nowrap;">${this._esc(s)}</span>`
       ).join('');
-      sidebarBlocks4['skills'] = `<div style="margin-bottom:20px;"><div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#60A5FA;border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:6px;margin-bottom:10px;">Skills</div><div style="width:180px;max-width:100%;display:block;">${tags}</div></div>`;
+      sidebarBlocks4['skills'] = `<div style="margin-bottom:20px;"><div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#60A5FA;border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:6px;margin-bottom:10px;">${this._title(state,'skills','Skills')}</div><div style="width:180px;max-width:100%;display:block;">${tags}</div></div>`;
     }
 
     /* Education in sidebar */
@@ -444,7 +457,7 @@ window.TemplateEngine = {
           ${e.period ? `<div style="font-size:7.5pt;color:rgba(255,255,255,0.45);">${this._esc(e.period)}</div>` : ''}
           ${(e.gpaType || e.gpa) && e.gpa ? `<div style="font-size:7.5pt;color:rgba(255,255,255,0.5);">${this._esc(e.gpaType || 'GPA')}: ${this._esc(e.gpa)}</div>` : ''}
         </div>`).join('');
-      sidebarBlocks4['education'] = `<div style="margin-bottom:20px;"><div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#60A5FA;border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:6px;margin-bottom:10px;">Education</div>${eduRows}</div>`;
+      sidebarBlocks4['education'] = `<div style="margin-bottom:20px;"><div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#60A5FA;border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:6px;margin-bottom:10px;">${this._title(state,'education','Education')}</div>${eduRows}</div>`;
     }
 
     // Assemble sidebar in user-defined order (skills+education only; contact+photo are fixed above)
@@ -458,7 +471,7 @@ window.TemplateEngine = {
 
     /* Summary → Executive Profile (always first in main) */
     if (p.summary) {
-      mainParts.push(`<div style="margin-bottom:22px;"><div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:10px;">Executive Profile</div><p style="font-size:9.5pt;color:#475569;line-height:1.75;margin:0;">${this._esc(p.summary)}</p></div>`);
+      mainParts.push(`<div style="margin-bottom:22px;"><div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:10px;">${this._title(state,'summary','Executive Profile')}</div><p style="font-size:9.5pt;color:#475569;line-height:1.75;margin:0;">${this._esc(p.summary)}</p></div>`);
     }
 
     /* Work Experience */
@@ -475,7 +488,7 @@ window.TemplateEngine = {
           </div>
           ${e.description ? `<div>${this._nl2bullets(e.description)}</div>` : ''}
         </div>`).join('');
-      mainBlocks4['experience'] = `<div style="margin-bottom:22px;"><div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:12px;">Work Experience</div>${entries}</div>`;
+      mainBlocks4['experience'] = `<div style="margin-bottom:22px;"><div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:12px;">${this._title(state,'experience','Work Experience')}</div>${entries}</div>`;
     }
 
     /* Projects */
@@ -488,7 +501,7 @@ window.TemplateEngine = {
           </div>
           ${e.description ? `<div style="margin-top:4px;">${this._nl2bullets(e.description)}</div>` : ''}
         </div>`).join('');
-      mainBlocks4['projects'] = `<div style="margin-bottom:22px;"><div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:12px;">Projects</div>${entries}</div>`;
+      mainBlocks4['projects'] = `<div style="margin-bottom:22px;"><div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:12px;">${this._title(state,'projects','Projects')}</div>${entries}</div>`;
     }
 
     /* Custom sections */

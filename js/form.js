@@ -17,6 +17,7 @@ window.FormManager = {
     this._bindAddButtons();
     this._bindSummaryCounter();
     this._initSectionReorder();
+    this._initEditableTitles();
   },
 
   // ─── Personal Info Fields ───
@@ -494,6 +495,13 @@ window.FormManager = {
     // Restore section order in the editor panel
     this._applyDomOrder();
 
+    // Restore editable section titles
+    const titles = state.sectionTitles || {};
+    document.querySelectorAll('.section-title-text[data-title-key]').forEach(span => {
+      const key = span.dataset.titleKey;
+      if (titles[key]) span.textContent = titles[key];
+    });
+
     // Personal fields
     const personalFields = ['fullName','jobTitle','email','phone','address','linkedin','summary'];
     personalFields.forEach(id => {
@@ -593,6 +601,51 @@ window.FormManager = {
       const type = el.dataset.type;
       headerTitle.textContent = this._getEntryDisplayTitle(type, data);
     }
+  },
+
+  // ─── Editable Section Titles ───
+  _initEditableTitles() {
+    const container = document.getElementById('reorderableSections');
+    if (!container) return;
+
+    container.addEventListener('click', (e) => {
+      const btn = e.target.closest('.section-edit-title-btn');
+      if (!btn) return;
+
+      const key = btn.dataset.titleKey;
+      const titleSpan = container.querySelector(`.section-title-text[data-title-key="${key}"]`);
+      if (!titleSpan || titleSpan.querySelector('input')) return; // already editing
+
+      const current = titleSpan.textContent.trim();
+      titleSpan.dataset.prevText = current;
+
+      // Create inline input
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = current;
+      input.className = 'section-title-input';
+      input.setAttribute('aria-label', 'Rename section');
+      titleSpan.textContent = '';
+      titleSpan.appendChild(input);
+      input.focus();
+      input.select();
+
+      const commit = () => {
+        const val = input.value.trim() || titleSpan.dataset.prevText;
+        titleSpan.textContent = val;
+        // Save to state
+        if (!window.ResumeApp.state.sectionTitles) window.ResumeApp.state.sectionTitles = {};
+        window.ResumeApp.state.sectionTitles[key] = val;
+        window.ResumeApp.saveStateDraft();
+        window.ResumeApp.schedulePreview();
+      };
+
+      input.addEventListener('blur', commit);
+      input.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') { ev.preventDefault(); input.blur(); }
+        if (ev.key === 'Escape') { input.value = titleSpan.dataset.prevText; input.blur(); }
+      });
+    });
   },
 
   // ─── Init on DOM ready ───

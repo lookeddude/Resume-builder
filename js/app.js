@@ -23,6 +23,13 @@ window.ResumeApp = {
     projects: [],
     customSections: [],
     sectionOrder: ['skills', 'experience', 'education', 'projects', 'customSections'],
+    sectionTitles: {
+      summary:    'Professional Summary',
+      skills:     'Skills',
+      education:  'Education',
+      experience: 'Work Experience',
+      projects:   'Projects'
+    },
     photo: {
       src: null,
       x: 0,
@@ -59,6 +66,7 @@ window.ResumeApp = {
         projects      : JSON.parse(JSON.stringify(this.state.projects)),
         customSections: JSON.parse(JSON.stringify(this.state.customSections)),
         sectionOrder   : [...(this.state.sectionOrder || [])],
+        sectionTitles  : { ...this.state.sectionTitles },
         /* Store only the 4 raw photo fields – NOT croppedSrc (avoids bloating storage) */
         photo         : { src: p.src, x: p.x, y: p.y, scale: p.scale },
         savedAt       : Date.now(),
@@ -98,6 +106,9 @@ window.ResumeApp = {
       this.state.sectionOrder   = draft.sectionOrder && draft.sectionOrder.length
         ? draft.sectionOrder
         : ['skills', 'experience', 'education', 'projects', 'customSections'];
+      this.state.sectionTitles  = Object.keys(draft.sectionTitles || {}).length
+        ? { ...this.state.sectionTitles, ...draft.sectionTitles }
+        : this.state.sectionTitles;
       this.state.photo          = { ...this.state.photo, ...draft.photo };
 
       /* Update counters in FormManager so dynamic entries render correctly */
@@ -174,6 +185,7 @@ window.ResumeApp = {
     this.state.projects = [];
     this.state.customSections = [];
     this.state.sectionOrder = ['skills', 'experience', 'education', 'projects', 'customSections'];
+    this.state.sectionTitles = { summary: 'Professional Summary', skills: 'Skills', education: 'Education', experience: 'Work Experience', projects: 'Projects' };
     this.state.photo = { src: null, x: 0, y: 0, scale: 1.0 };
 
     // Reset form fields
@@ -381,10 +393,10 @@ window.ResumeApp = {
   },
 
   _handleTemplateVisibility() {
-    const needsPhoto   = this.state.template === 3 || this.state.template === 4;
-    const needsCustom  = this.state.template === 3 || this.state.template === 4;
-    document.getElementById('photoSection').style.display          = needsPhoto  ? 'block' : 'none';
-    document.getElementById('customSectionsWrapper').style.display = needsCustom ? 'block' : 'none';
+    const needsPhoto = this.state.template === 3 || this.state.template === 4;
+    document.getElementById('photoSection').style.display          = needsPhoto ? 'block' : 'none';
+    // Custom sections are available in ALL templates
+    document.getElementById('customSectionsWrapper').style.display = 'block';
   },
 
   async _updateResumeCountBadge() {
