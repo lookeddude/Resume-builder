@@ -47,6 +47,20 @@ window.TemplateEngine = {
     return items;
   },
 
+  /* Returns the user-defined section order (or a sensible default) */
+  _sectionOrder(state) {
+    const def = ['skills', 'experience', 'education', 'projects', 'customSections'];
+    const order = state.sectionOrder;
+    if (Array.isArray(order) && order.length) return order;
+    return def;
+  },
+
+  /* Filter sectionOrder to only the keys that belong to a given column group,
+     preserving their relative order from the master list */
+  _orderedKeys(state, allowedKeys) {
+    return this._sectionOrder(state).filter(k => allowedKeys.includes(k));
+  },
+
   // ===================================================
   // TEMPLATE 1 – SIMPLE
   // ===================================================
@@ -54,31 +68,24 @@ window.TemplateEngine = {
     const p = state.personal;
     const contactItems = this._contactItems(p);
 
-    const sections = [];
+    // ─── Build each section block ───────────────────────────────────────────
+    const sectionBlocks = {};
 
-    // Summary
-    if (p.summary) {
-      sections.push(`
-        <div class="tpl1-section">
-          <div class="tpl1-section-title">Professional Summary</div>
-          <p class="tpl1-summary">${this._esc(p.summary)}</p>
-        </div>
-      `);
-    }
+    // Summary is always first — not part of sectionOrder
+    const summaryHtml = p.summary ? `
+      <div class="tpl1-section">
+        <div class="tpl1-section-title">Professional Summary</div>
+        <p class="tpl1-summary">${this._esc(p.summary)}</p>
+      </div>` : null;
 
-    // ── Skills (T1 – clean rectangular tags, left-aligned) ──
+    // Skills
     if (state.skills.length > 0) {
       const tags = state.skills.map(s =>
         `<span style="display:inline-block;font-size:9pt;font-family:'Inter',sans-serif;
           color:#374151;background:#F3F4F6;border:1px solid #D1D5DB;
           border-radius:5px;padding:5px 13px;margin:0 5px 7px 0;">${this._esc(s)}</span>`
       ).join('');
-      sections.push(`
-        <div class="tpl1-section">
-          <div class="tpl1-section-title">Skills</div>
-          <div style="display:block;">${tags}</div>
-        </div>
-      `);
+      sectionBlocks['skills'] = `<div class="tpl1-section"><div class="tpl1-section-title">Skills</div><div style="display:block;">${tags}</div></div>`;
     }
 
     // Experience
@@ -91,9 +98,8 @@ window.TemplateEngine = {
           </div>
           ${e.company ? `<div class="tpl1-entry-sub">${this._esc(e.company)}${e.location ? ` · ${this._esc(e.location)}` : ''}</div>` : ''}
           ${e.description ? `<div class="tpl1-entry-desc">${this._nl2bullets(e.description)}</div>` : ''}
-        </div>
-      `).join('');
-      sections.push(`<div class="tpl1-section"><div class="tpl1-section-title">Work Experience</div>${entries}</div>`);
+        </div>`).join('');
+      sectionBlocks['experience'] = `<div class="tpl1-section"><div class="tpl1-section-title">Work Experience</div>${entries}</div>`;
     }
 
     // Education
@@ -105,11 +111,9 @@ window.TemplateEngine = {
             ${e.period ? `<span class="tpl1-entry-period">${this._esc(e.period)}</span>` : ''}
           </div>
           ${e.school ? `<div class="tpl1-entry-sub">${this._esc(e.school)}${e.field ? ` · ${this._esc(e.field)}` : ''}${(e.gpaType || e.gpa) && e.gpa ? ` · ${this._esc(e.gpaType || 'GPA')}: ${this._esc(e.gpa)}` : ''}</div>` : ''}
-
           ${e.description ? `<div class="tpl1-entry-desc">${this._nl2bullets(e.description)}</div>` : ''}
-        </div>
-      `).join('');
-      sections.push(`<div class="tpl1-section"><div class="tpl1-section-title">Education</div>${entries}</div>`);
+        </div>`).join('');
+      sectionBlocks['education'] = `<div class="tpl1-section"><div class="tpl1-section-title">Education</div>${entries}</div>`;
     }
 
     // Projects
@@ -122,10 +126,26 @@ window.TemplateEngine = {
           </div>
           ${e.tech ? `<div class="tpl1-entry-sub">${this._esc(e.tech)}${e.link ? ` · <a href="${this._esc(e.link)}" style="color:#444;">${this._esc(e.link.replace(/^https?:\/\//,''))}</a>` : ''}</div>` : ''}
           ${e.description ? `<div class="tpl1-entry-desc">${this._nl2bullets(e.description)}</div>` : ''}
-        </div>
-      `).join('');
-      sections.push(`<div class="tpl1-section"><div class="tpl1-section-title">Projects</div>${entries}</div>`);
+        </div>`).join('');
+      sectionBlocks['projects'] = `<div class="tpl1-section"><div class="tpl1-section-title">Projects</div>${entries}</div>`;
     }
+
+    // Custom Sections
+    if (state.customSections.length > 0) {
+      const parts = state.customSections.map(cs => `
+        <div class="tpl1-section">
+          <div class="tpl1-section-title">${this._esc(cs.title)}</div>
+          <p class="tpl1-summary">${this._esc(cs.content).replace(/\n/g,'<br>')}</p>
+        </div>`).join('');
+      sectionBlocks['customSections'] = parts;
+    }
+
+    // ─── Assemble in user-defined order ─────────────────────────────────────
+    const sections = [];
+    if (summaryHtml) sections.push(summaryHtml);
+    this._sectionOrder(state).forEach(key => {
+      if (sectionBlocks[key]) sections.push(sectionBlocks[key]);
+    });
 
     return `
       <div class="tpl1-root">
@@ -146,10 +166,9 @@ window.TemplateEngine = {
     const p = state.personal;
     const contactItems = this._contactItems(p);
 
-    // LEFT COLUMN
-    const leftParts = [];
+    const leftBlocks = {};
+    const rightBlocks = {};
 
-    // ── Skills (T2 – dot-bullet list in sidebar) ──
     if (state.skills.length > 0) {
       const items = state.skills.map(s =>
         `<div style="display:block;padding:5px 0;border-bottom:1px solid #F1F5F9;">
@@ -158,15 +177,9 @@ window.TemplateEngine = {
            <span style="font-size:9pt;color:#334155;vertical-align:middle;">${this._esc(s)}</span>
          </div>`
       ).join('');
-      leftParts.push(`
-        <div class="tpl2-section">
-          <div class="tpl2-section-title">Skills</div>
-          <div style="display:block;">${items}</div>
-        </div>
-      `);
+      leftBlocks['skills'] = `<div class="tpl2-section"><div class="tpl2-section-title">Skills</div><div style="display:block;">${items}</div></div>`;
     }
 
-    // Education in left
     if (state.education.length > 0) {
       const entries = state.education.map(e => `
         <div class="tpl2-entry">
@@ -175,21 +188,13 @@ window.TemplateEngine = {
           ${e.school ? `<div class="tpl2-entry-sub">${this._esc(e.school)}</div>` : ''}
           ${e.field ? `<div style="font-size:8.5pt;color:#64748B;">${this._esc(e.field)}</div>` : ''}
           ${(e.gpaType || e.gpa) && e.gpa ? `<div style="font-size:8.5pt;color:#64748B;">${this._esc(e.gpaType || 'GPA')}: ${this._esc(e.gpa)}</div>` : ''}
-        </div>
-      `).join('');
-      leftParts.push(`<div class="tpl2-section"><div class="tpl2-section-title">Education</div>${entries}</div>`);
+        </div>`).join('');
+      leftBlocks['education'] = `<div class="tpl2-section"><div class="tpl2-section-title">Education</div>${entries}</div>`;
     }
 
-    // RIGHT COLUMN
     const rightParts = [];
-
     if (p.summary) {
-      rightParts.push(`
-        <div class="tpl2-section">
-          <div class="tpl2-section-title">About Me</div>
-          <p class="tpl2-summary">${this._esc(p.summary)}</p>
-        </div>
-      `);
+      rightParts.push(`<div class="tpl2-section"><div class="tpl2-section-title">About Me</div><p class="tpl2-summary">${this._esc(p.summary)}</p></div>`);
     }
 
     if (state.experience.length > 0) {
@@ -201,9 +206,8 @@ window.TemplateEngine = {
           </div>
           ${e.company ? `<div class="tpl2-entry-sub">${this._esc(e.company)}${e.location ? ` · ${this._esc(e.location)}` : ''}</div>` : ''}
           ${e.description ? `<div class="tpl2-entry-desc">${this._nl2bullets(e.description)}</div>` : ''}
-        </div>
-      `).join('');
-      rightParts.push(`<div class="tpl2-section"><div class="tpl2-section-title">Work Experience</div>${entries}</div>`);
+        </div>`).join('');
+      rightBlocks['experience'] = `<div class="tpl2-section"><div class="tpl2-section-title">Work Experience</div>${entries}</div>`;
     }
 
     if (state.projects.length > 0) {
@@ -215,10 +219,12 @@ window.TemplateEngine = {
           </div>
           ${e.tech ? `<div class="tpl2-entry-sub">${this._esc(e.tech)}</div>` : ''}
           ${e.description ? `<div class="tpl2-entry-desc">${this._nl2bullets(e.description)}</div>` : ''}
-        </div>
-      `).join('');
-      rightParts.push(`<div class="tpl2-section"><div class="tpl2-section-title">Projects</div>${entries}</div>`);
+        </div>`).join('');
+      rightBlocks['projects'] = `<div class="tpl2-section"><div class="tpl2-section-title">Projects</div>${entries}</div>`;
     }
+
+    const leftParts = this._orderedKeys(state, ['skills', 'education']).map(k => leftBlocks[k]).filter(Boolean);
+    this._orderedKeys(state, ['experience', 'projects']).forEach(k => { if (rightBlocks[k]) rightParts.push(rightBlocks[k]); });
 
     return `
       <div class="tpl2-root">
@@ -270,21 +276,16 @@ window.TemplateEngine = {
     // SIDEBAR
     const sidebarParts = [];
 
-    // ── Skills (T3 – purple-tinted badge tags in sidebar) ──
+    // ── Build sidebar blocks ──
+    const sidebarBlocks = {};
+
     if (state.skills.length > 0) {
       const badges = state.skills.map(s =>
         `<span style="display:inline-block;font-size:8.5pt;font-family:'Inter',sans-serif;
           color:#5B21B6;background:#EDE9FE;border:1px solid #C4B5FD;
           border-radius:5px;padding:4px 11px;margin:0 4px 6px 0;">${this._esc(s)}</span>`
       ).join('');
-      sidebarParts.push(`
-        <div class="tpl3-section">
-          <div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;
-            letter-spacing:1.5px;color:#7C3AED;border-bottom:2px solid #EDE9FE;
-            margin-bottom:10px;padding-bottom:5px;">Skills</div>
-          <div style="display:block;">${badges}</div>
-        </div>
-      `);
+      sidebarBlocks['skills'] = `<div class="tpl3-section"><div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#7C3AED;border-bottom:2px solid #EDE9FE;margin-bottom:10px;padding-bottom:5px;">Skills</div><div style="display:block;">${badges}</div></div>`;
     }
 
     if (state.education.length > 0) {
@@ -295,38 +296,29 @@ window.TemplateEngine = {
           ${e.field ? `<div style="font-size:8.5pt;color:#64748B;">${this._esc(e.field)}</div>` : ''}
           ${e.period ? `<div style="font-size:8.5pt;color:#94A3B8;">${this._esc(e.period)}</div>` : ''}
           ${(e.gpaType || e.gpa) && e.gpa ? `<div style="font-size:8.5pt;color:#64748B;">${this._esc(e.gpaType || 'GPA')}: ${this._esc(e.gpa)}</div>` : ''}
-        </div>
-      `).join('');
-      sidebarParts.push(`
-        <div class="tpl3-section">
-          <div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#7C3AED;border-bottom:2px solid #EDE9FE;margin-bottom:10px;padding-bottom:5px;">Education</div>
-          ${entries}
-        </div>
-      `);
+        </div>`).join('');
+      sidebarBlocks['education'] = `<div class="tpl3-section"><div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#7C3AED;border-bottom:2px solid #EDE9FE;margin-bottom:10px;padding-bottom:5px;">Education</div>${entries}</div>`;
     }
 
-    // Custom sections in sidebar
     if (state.customSections.length > 0) {
-      state.customSections.forEach(cs => {
-        sidebarParts.push(`
-          <div class="tpl3-section">
-            <div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#059669;border-bottom:2px solid #D1FAE5;margin-bottom:10px;padding-bottom:5px;">${this._esc(cs.title)}</div>
-            <div style="font-size:9.5pt;color:#475569;line-height:1.7;">${this._esc(cs.content).replace(/\n/g,'<br>')}</div>
-          </div>
-        `);
-      });
+      const customHtml = state.customSections.map(cs => `
+        <div class="tpl3-section">
+          <div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#059669;border-bottom:2px solid #D1FAE5;margin-bottom:10px;padding-bottom:5px;">${this._esc(cs.title)}</div>
+          <div style="font-size:9.5pt;color:#475569;line-height:1.7;">${this._esc(cs.content).replace(/\n/g,'<br>')}</div>
+        </div>`).join('');
+      sidebarBlocks['customSections'] = customHtml;
     }
 
-    // MAIN CONTENT
+    // Assemble sidebar in user-defined order
+    const sidebarParts = this._orderedKeys(state, ['skills', 'education', 'customSections'])
+      .map(k => sidebarBlocks[k]).filter(Boolean);
+
+    // ── Build main blocks ──
+    const mainBlocks = {};
     const mainParts = [];
 
     if (p.summary) {
-      mainParts.push(`
-        <div class="tpl3-section">
-          <div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#1D4ED8;border-bottom:2px solid #BFDBFE;margin-bottom:10px;padding-bottom:5px;">Professional Summary</div>
-          <p class="tpl3-summary" style="font-size:9.5pt;color:#475569;line-height:1.7;margin:0;">${this._esc(p.summary)}</p>
-        </div>
-      `);
+      mainParts.push(`<div class="tpl3-section"><div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#1D4ED8;border-bottom:2px solid #BFDBFE;margin-bottom:10px;padding-bottom:5px;">Professional Summary</div><p class="tpl3-summary" style="font-size:9.5pt;color:#475569;line-height:1.7;margin:0;">${this._esc(p.summary)}</p></div>`);
     }
 
     if (state.experience.length > 0) {
@@ -338,14 +330,8 @@ window.TemplateEngine = {
           </div>
           ${e.company ? `<div style="font-size:9.5pt;color:#7C3AED;font-weight:500;margin-bottom:5px;">${this._esc(e.company)}${e.location ? ` · ${this._esc(e.location)}` : ''}</div>` : ''}
           ${e.description ? `<div>${this._nl2bullets(e.description)}</div>` : ''}
-        </div>
-      `).join('');
-      mainParts.push(`
-        <div class="tpl3-section">
-          <div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#1D4ED8;border-bottom:2px solid #BFDBFE;margin-bottom:10px;padding-bottom:5px;">Work Experience</div>
-          ${entries}
-        </div>
-      `);
+        </div>`).join('');
+      mainBlocks['experience'] = `<div class="tpl3-section"><div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#1D4ED8;border-bottom:2px solid #BFDBFE;margin-bottom:10px;padding-bottom:5px;">Work Experience</div>${entries}</div>`;
     }
 
     if (state.projects.length > 0) {
@@ -357,15 +343,11 @@ window.TemplateEngine = {
           </div>
           ${e.tech ? `<div style="font-size:9.5pt;color:#7C3AED;font-weight:500;margin-bottom:5px;">${this._esc(e.tech)}${e.link ? ` · <a href="${this._esc(e.link)}" style="color:#1D4ED8;">${this._esc(e.link.replace(/^https?:\/\//,''))}</a>` : ''}</div>` : ''}
           ${e.description ? `<div>${this._nl2bullets(e.description)}</div>` : ''}
-        </div>
-      `).join('');
-      mainParts.push(`
-        <div class="tpl3-section">
-          <div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#1D4ED8;border-bottom:2px solid #BFDBFE;margin-bottom:10px;padding-bottom:5px;">Projects</div>
-          ${entries}
-        </div>
-      `);
+        </div>`).join('');
+      mainBlocks['projects'] = `<div class="tpl3-section"><div class="tpl3-section-title" style="font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#1D4ED8;border-bottom:2px solid #BFDBFE;margin-bottom:10px;padding-bottom:5px;">Projects</div>${entries}</div>`;
     }
+
+    this._orderedKeys(state, ['experience', 'projects']).forEach(k => { if (mainBlocks[k]) mainParts.push(mainBlocks[k]); });
 
     return `
       <div class="tpl3-root">
@@ -443,6 +425,8 @@ window.TemplateEngine = {
     }
 
     /* Skills (T4 – dark blue-tinted rectangular tags) */
+    const sidebarBlocks4 = {};
+
     if (state.skills.length > 0) {
       const tags = state.skills.map(s =>
         `<span style="display:inline-block;font-size:7.5pt;color:#93C5FD;
@@ -450,13 +434,7 @@ window.TemplateEngine = {
           border-radius:5px;padding:4px 10px;margin:0 4px 6px 0;
           white-space:nowrap;">${this._esc(s)}</span>`
       ).join('');
-      sidebarParts.push(`
-        <div style="margin-bottom:20px;">
-          <div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;
-            color:#60A5FA;border-bottom:1px solid rgba(255,255,255,0.12);
-            padding-bottom:6px;margin-bottom:10px;">Skills</div>
-          <div style="width:180px;max-width:100%;display:block;">${tags}</div>
-        </div>`);
+      sidebarBlocks4['skills'] = `<div style="margin-bottom:20px;"><div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#60A5FA;border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:6px;margin-bottom:10px;">Skills</div><div style="width:180px;max-width:100%;display:block;">${tags}</div></div>`;
     }
 
     /* Education in sidebar */
@@ -469,25 +447,21 @@ window.TemplateEngine = {
           ${e.period ? `<div style="font-size:7.5pt;color:rgba(255,255,255,0.45);">${this._esc(e.period)}</div>` : ''}
           ${(e.gpaType || e.gpa) && e.gpa ? `<div style="font-size:7.5pt;color:rgba(255,255,255,0.5);">${this._esc(e.gpaType || 'GPA')}: ${this._esc(e.gpa)}</div>` : ''}
         </div>`).join('');
-      sidebarParts.push(`
-        <div style="margin-bottom:20px;">
-          <div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#60A5FA;
-                      border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:6px;margin-bottom:10px;">Education</div>
-          ${eduRows}
-        </div>`);
+      sidebarBlocks4['education'] = `<div style="margin-bottom:20px;"><div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#60A5FA;border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:6px;margin-bottom:10px;">Education</div>${eduRows}</div>`;
     }
 
+    // Assemble sidebar in user-defined order (skills+education only; contact+photo are fixed above)
+    this._orderedKeys(state, ['skills', 'education']).forEach(k => {
+      if (sidebarBlocks4[k]) sidebarParts.push(sidebarBlocks4[k]);
+    });
+
     /* ── Main content ── */
+    const mainBlocks4 = {};
     const mainParts = [];
 
-    /* Summary → Executive Profile */
+    /* Summary → Executive Profile (always first in main) */
     if (p.summary) {
-      mainParts.push(`
-        <div style="margin-bottom:22px;">
-          <div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;
-                      border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:10px;">Executive Profile</div>
-          <p style="font-size:9.5pt;color:#475569;line-height:1.75;margin:0;">${this._esc(p.summary)}</p>
-        </div>`);
+      mainParts.push(`<div style="margin-bottom:22px;"><div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:10px;">Executive Profile</div><p style="font-size:9.5pt;color:#475569;line-height:1.75;margin:0;">${this._esc(p.summary)}</p></div>`);
     }
 
     /* Work Experience */
@@ -504,12 +478,7 @@ window.TemplateEngine = {
           </div>
           ${e.description ? `<div>${this._nl2bullets(e.description)}</div>` : ''}
         </div>`).join('');
-      mainParts.push(`
-        <div style="margin-bottom:22px;">
-          <div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;
-                      border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:12px;">Work Experience</div>
-          ${entries}
-        </div>`);
+      mainBlocks4['experience'] = `<div style="margin-bottom:22px;"><div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:12px;">Work Experience</div>${entries}</div>`;
     }
 
     /* Projects */
@@ -522,25 +491,22 @@ window.TemplateEngine = {
           </div>
           ${e.description ? `<div style="margin-top:4px;">${this._nl2bullets(e.description)}</div>` : ''}
         </div>`).join('');
-      mainParts.push(`
-        <div style="margin-bottom:22px;">
-          <div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;
-                      border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:12px;">Projects</div>
-          ${entries}
-        </div>`);
+      mainBlocks4['projects'] = `<div style="margin-bottom:22px;"><div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:12px;">Projects</div>${entries}</div>`;
     }
 
-    /* Custom sections (Certifications, Languages, etc.) */
-    state.customSections.forEach(cs => {
-      const lines = (cs.content || '').split('\n').filter(l => l.trim());
-      const listHtml = lines.map(l => `<div style="font-size:9.5pt;color:#475569;padding:2px 0;">- ${this._esc(l.replace(/^[\-\u2022]\s*/,''))}</div>`).join('');
-      mainParts.push(`
-        <div style="margin-bottom:22px;">
-          <div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;
-                      border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:10px;">${this._esc(cs.title)}</div>
-          ${listHtml || `<p style="font-size:9.5pt;color:#94A3B8;">Add content...</p>`}
-        </div>`);
-    });
+    /* Custom sections */
+    if (state.customSections.length > 0) {
+      const customHtml = state.customSections.map(cs => {
+        const lines = (cs.content || '').split('\n').filter(l => l.trim());
+        const listHtml = lines.map(l => `<div style="font-size:9.5pt;color:#475569;padding:2px 0;">- ${this._esc(l.replace(/^[\-\u2022]\s*/,''))}</div>`).join('');
+        return `<div style="margin-bottom:22px;"><div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:10px;">${this._esc(cs.title)}</div>${listHtml || `<p style="font-size:9.5pt;color:#94A3B8;">Add content...</p>`}</div>`;
+      }).join('');
+      mainBlocks4['customSections'] = customHtml;
+    }
+
+    // Assemble main in user-defined order
+    this._orderedKeys(state, ['experience', 'projects', 'customSections'])
+      .forEach(k => { if (mainBlocks4[k]) mainParts.push(mainBlocks4[k]); });
 
     return `
       <div style="display:flex;min-height:100%;font-family:'Inter','Segoe UI',sans-serif;">

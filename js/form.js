@@ -16,6 +16,7 @@ window.FormManager = {
     this._bindSkillsInput();
     this._bindAddButtons();
     this._bindSummaryCounter();
+    this._initSectionReorder();
   },
 
   // ─── Personal Info Fields ───
@@ -325,6 +326,111 @@ window.FormManager = {
     window.ResumeApp.schedulePreview();
   },
 
+  // ─── Section Reordering ───
+  _initSectionReorder() {
+    const container = document.getElementById('reorderableSections');
+    if (!container) return;
+
+    // Apply saved order from state to DOM on init
+    this._applyDomOrder();
+
+    // Bind Up/Down buttons via event delegation
+    container.addEventListener('click', (e) => {
+      const btn = e.target.closest('.section-order-btn');
+      if (!btn) return;
+      const section = btn.closest('.reorderable-section');
+      if (!section) return;
+      const dir = btn.dataset.dir;
+      this._moveSectionInDom(section, dir);
+      this._syncOrderFromDom();
+      window.ResumeApp.schedulePreview();
+    });
+  },
+
+  /* Re-sort DOM sections to match state.sectionOrder */
+  _applyDomOrder() {
+    const order = window.ResumeApp?.state?.sectionOrder;
+    if (!order || !order.length) return;
+    const container = document.getElementById('reorderableSections');
+    if (!container) return;
+
+    // Map key → element
+    const map = {};
+    container.querySelectorAll('.reorderable-section[data-section-key]').forEach(el => {
+      map[el.dataset.sectionKey] = el;
+    });
+
+    // Append in saved order (unknown keys go to end)
+    order.forEach(key => {
+      if (map[key]) container.appendChild(map[key]);
+    });
+
+    this._updateOrderBtns();
+  },
+
+  /* Move a section up or down in the DOM */
+  _moveSectionInDom(section, dir) {
+    if (dir === 'up') {
+      const prev = this._adjacentSection(section, 'prev');
+      if (prev) {
+        /* Animate swap */
+        section.style.transition = 'transform 0.18s ease';
+        prev.style.transition    = 'transform 0.18s ease';
+        section.parentNode.insertBefore(section, prev);
+        setTimeout(() => {
+          section.style.transition = '';
+          prev.style.transition    = '';
+        }, 180);
+      }
+    } else {
+      const next = this._adjacentSection(section, 'next');
+      if (next) {
+        section.style.transition = 'transform 0.18s ease';
+        next.style.transition    = 'transform 0.18s ease';
+        section.parentNode.insertBefore(next, section);
+        setTimeout(() => {
+          section.style.transition = '';
+          next.style.transition    = '';
+        }, 180);
+      }
+    }
+    this._updateOrderBtns();
+  },
+
+  /* Get the previous or next reorderable sibling */
+  _adjacentSection(el, dir) {
+    let cur = dir === 'prev' ? el.previousElementSibling : el.nextElementSibling;
+    while (cur) {
+      if (cur.classList.contains('reorderable-section')) return cur;
+      cur = dir === 'prev' ? cur.previousElementSibling : cur.nextElementSibling;
+    }
+    return null;
+  },
+
+  /* Read current DOM order → state.sectionOrder */
+  _syncOrderFromDom() {
+    const container = document.getElementById('reorderableSections');
+    if (!container) return;
+    const order = [];
+    container.querySelectorAll('.reorderable-section[data-section-key]').forEach(el => {
+      order.push(el.dataset.sectionKey);
+    });
+    window.ResumeApp.state.sectionOrder = order;
+  },
+
+  /* Disable Up on first / Down on last visible reorderable section */
+  _updateOrderBtns() {
+    const container = document.getElementById('reorderableSections');
+    if (!container) return;
+    const sections = [...container.querySelectorAll('.reorderable-section[data-section-key]')];
+    sections.forEach((sec, i) => {
+      const upBtn   = sec.querySelector('.section-order-btn[data-dir="up"]');
+      const downBtn = sec.querySelector('.section-order-btn[data-dir="down"]');
+      if (upBtn)   upBtn.disabled   = (i === 0);
+      if (downBtn) downBtn.disabled = (i === sections.length - 1);
+    });
+  },
+
   // ─── Validation ───
   validate() {
     let valid = true;
@@ -384,6 +490,9 @@ window.FormManager = {
   // ─── Populate entire form from state ───
   populateForm() {
     const state = window.ResumeApp.state;
+
+    // Restore section order in the editor panel
+    this._applyDomOrder();
 
     // Personal fields
     const personalFields = ['fullName','jobTitle','email','phone','address','linkedin','summary'];

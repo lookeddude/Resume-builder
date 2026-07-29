@@ -22,6 +22,7 @@ window.ResumeApp = {
     experience: [],
     projects: [],
     customSections: [],
+    sectionOrder: ['skills', 'experience', 'education', 'projects', 'customSections'],
     photo: {
       src: null,
       x: 0,
@@ -57,6 +58,7 @@ window.ResumeApp = {
         experience    : JSON.parse(JSON.stringify(this.state.experience)),
         projects      : JSON.parse(JSON.stringify(this.state.projects)),
         customSections: JSON.parse(JSON.stringify(this.state.customSections)),
+        sectionOrder   : [...(this.state.sectionOrder || [])],
         /* Store only the 4 raw photo fields – NOT croppedSrc (avoids bloating storage) */
         photo         : { src: p.src, x: p.x, y: p.y, scale: p.scale },
         savedAt       : Date.now(),
@@ -93,6 +95,9 @@ window.ResumeApp = {
       this.state.experience     = draft.experience     ?? [];
       this.state.projects       = draft.projects       ?? [];
       this.state.customSections = draft.customSections ?? [];
+      this.state.sectionOrder   = draft.sectionOrder && draft.sectionOrder.length
+        ? draft.sectionOrder
+        : ['skills', 'experience', 'education', 'projects', 'customSections'];
       this.state.photo          = { ...this.state.photo, ...draft.photo };
 
       /* Update counters in FormManager so dynamic entries render correctly */
@@ -168,6 +173,7 @@ window.ResumeApp = {
     this.state.experience = [];
     this.state.projects = [];
     this.state.customSections = [];
+    this.state.sectionOrder = ['skills', 'experience', 'education', 'projects', 'customSections'];
     this.state.photo = { src: null, x: 0, y: 0, scale: 1.0 };
 
     // Reset form fields
@@ -188,6 +194,9 @@ window.ResumeApp = {
 
     // Clear photo
     window.ImageManager.reset();
+
+    // Reset section order in editor
+    window.FormManager?._applyDomOrder?.();
 
     this.schedulePreview();
     this.showToast('All data cleared', 'success');

@@ -19,6 +19,7 @@
   margin-bottom: var(--space-4);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-2);
   padding-bottom: var(--space-3);
   border-bottom: 1px solid var(--border);
@@ -32,7 +33,56 @@
   background: linear-gradient(90deg, var(--primary), var(--accent));
   border-radius: 2px;
 }
+.section-heading-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
 .section-icon { font-size: 1rem; }
+
+/* ─── Section Reorder Buttons ─── */
+.section-order-btns {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.section-order-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(99,102,241,0.07);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+  line-height: 1;
+}
+.section-order-btn:hover:not(:disabled) {
+  background: rgba(99,102,241,0.22);
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+  transform: translateY(-1px);
+}
+.section-order-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+.section-order-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+.reorderable-section {
+  transition: box-shadow 0.18s ease;
+}
+.reorderable-section:has(.section-order-btn:hover:not(:disabled)) {
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.12);
+  border-radius: var(--radius-sm);
+}
+
 
 /* ─── Template Selector ─── */
 .template-selector-section { margin-bottom: var(--space-6); }

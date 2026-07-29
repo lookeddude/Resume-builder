@@ -345,67 +345,112 @@
           </div>
         </div>
 
-        <!-- ─── SKILLS ─── -->
-        <div class="form-section">
-          <h2 class="section-heading">
-            <span class="section-icon">⚡</span> Skills
-          </h2>
-          <div class="field-group">
-            <label class="field-label" for="skillInput">Add Skills <span class="hint-text">(Press Enter or comma to add)</span></label>
-            <div class="tags-input-wrapper" id="tagsWrapper">
-              <div class="tags-container" id="tagsContainer"></div>
-              <input class="tags-input" type="text" id="skillInput" placeholder="e.g. JavaScript, React, Node.js..." />
+        <!-- ═══ REORDERABLE SECTIONS ═══ -->
+        <div id="reorderableSections">
+
+          <!-- ─── SKILLS ─── -->
+          <div class="form-section reorderable-section" data-section-key="skills">
+            <h2 class="section-heading">
+              <span class="section-heading-label"><span class="section-icon">⚡</span> Skills</span>
+              <div class="section-order-btns">
+                <button class="section-order-btn" data-dir="up" title="Move Skills up" aria-label="Move Skills section up">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                </button>
+                <button class="section-order-btn" data-dir="down" title="Move Skills down" aria-label="Move Skills section down">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </div>
+            </h2>
+            <div class="field-group">
+              <label class="field-label" for="skillInput">Add Skills <span class="hint-text">(Press Enter or comma to add)</span></label>
+              <div class="tags-input-wrapper" id="tagsWrapper">
+                <div class="tags-container" id="tagsContainer"></div>
+                <input class="tags-input" type="text" id="skillInput" placeholder="e.g. JavaScript, React, Node.js..." />
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- ─── EDUCATION ─── -->
-        <div class="form-section">
-          <h2 class="section-heading">
-            <span class="section-icon">🎓</span> Education
-          </h2>
-          <div id="educationList" class="dynamic-list"></div>
-          <button class="btn-add-section" id="btnAddEducation">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add Education
-          </button>
-        </div>
+          <!-- ─── EXPERIENCE ─── -->
+          <div class="form-section reorderable-section" data-section-key="experience">
+            <h2 class="section-heading">
+              <span class="section-heading-label"><span class="section-icon">💼</span> Work Experience</span>
+              <div class="section-order-btns">
+                <button class="section-order-btn" data-dir="up" title="Move Experience up" aria-label="Move Experience section up">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                </button>
+                <button class="section-order-btn" data-dir="down" title="Move Experience down" aria-label="Move Experience section down">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </div>
+            </h2>
+            <div id="experienceList" class="dynamic-list"></div>
+            <button class="btn-add-section" id="btnAddExperience">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Experience
+            </button>
+          </div>
 
-        <!-- ─── EXPERIENCE ─── -->
-        <div class="form-section">
-          <h2 class="section-heading">
-            <span class="section-icon">💼</span> Work Experience
-          </h2>
-          <div id="experienceList" class="dynamic-list"></div>
-          <button class="btn-add-section" id="btnAddExperience">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add Experience
-          </button>
-        </div>
+          <!-- ─── EDUCATION ─── -->
+          <div class="form-section reorderable-section" data-section-key="education">
+            <h2 class="section-heading">
+              <span class="section-heading-label"><span class="section-icon">🎓</span> Education</span>
+              <div class="section-order-btns">
+                <button class="section-order-btn" data-dir="up" title="Move Education up" aria-label="Move Education section up">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                </button>
+                <button class="section-order-btn" data-dir="down" title="Move Education down" aria-label="Move Education section down">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </div>
+            </h2>
+            <div id="educationList" class="dynamic-list"></div>
+            <button class="btn-add-section" id="btnAddEducation">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Education
+            </button>
+          </div>
 
-        <!-- ─── PROJECTS ─── -->
-        <div class="form-section">
-          <h2 class="section-heading">
-            <span class="section-icon">🚀</span> Projects
-          </h2>
-          <div id="projectsList" class="dynamic-list"></div>
-          <button class="btn-add-section" id="btnAddProject">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add Project
-          </button>
-        </div>
+          <!-- ─── PROJECTS ─── -->
+          <div class="form-section reorderable-section" data-section-key="projects">
+            <h2 class="section-heading">
+              <span class="section-heading-label"><span class="section-icon">🚀</span> Projects</span>
+              <div class="section-order-btns">
+                <button class="section-order-btn" data-dir="up" title="Move Projects up" aria-label="Move Projects section up">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                </button>
+                <button class="section-order-btn" data-dir="down" title="Move Projects down" aria-label="Move Projects section down">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </div>
+            </h2>
+            <div id="projectsList" class="dynamic-list"></div>
+            <button class="btn-add-section" id="btnAddProject">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Project
+            </button>
+          </div>
 
-        <!-- ─── CUSTOM SECTIONS (Template 3 only) ─── -->
-        <div class="form-section custom-sections-wrapper" id="customSectionsWrapper" style="display:none;">
-          <h2 class="section-heading">
-            <span class="section-icon">✨</span> Custom Sections <span class="badge-t3">Template 3 only</span>
-          </h2>
-          <div id="customSectionsList"></div>
-          <button class="btn-add-section" id="btnAddCustomSection">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add Custom Section
-          </button>
-        </div>
+          <!-- ─── CUSTOM SECTIONS (Template 3 only) ─── -->
+          <div class="form-section reorderable-section custom-sections-wrapper" id="customSectionsWrapper" data-section-key="customSections" style="display:none;">
+            <h2 class="section-heading">
+              <span class="section-heading-label"><span class="section-icon">✨</span> Custom Sections <span class="badge-t3">Template 3 only</span></span>
+              <div class="section-order-btns">
+                <button class="section-order-btn" data-dir="up" title="Move Custom Sections up" aria-label="Move Custom Sections up">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                </button>
+                <button class="section-order-btn" data-dir="down" title="Move Custom Sections down" aria-label="Move Custom Sections down">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </div>
+            </h2>
+            <div id="customSectionsList"></div>
+            <button class="btn-add-section" id="btnAddCustomSection">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Custom Section
+            </button>
+          </div>
+
+        </div><!-- /reorderableSections -->
 
         <!-- ─── GENERATE BUTTON ─── -->
         <div class="form-section generate-section">
@@ -414,6 +459,7 @@
             Generate Resume
           </button>
         </div>
+
 
       </div><!-- /panel-scroll -->
     </section>
