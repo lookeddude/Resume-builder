@@ -87,6 +87,10 @@ window.NavManager = {
     document.getElementById('dropdownMyResumes')?.addEventListener('click', () => {
       close(); window.MyResumesPanel?.open?.();
     });
+    /* Change Password */
+    document.getElementById('dropdownChangePassword')?.addEventListener('click', () => {
+      close(); window.AuthManager?._openChangePwModal?.();
+    });
   },
 
   /* ── Drawer nav items ── */

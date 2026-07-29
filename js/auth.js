@@ -529,6 +529,279 @@ window.AuthManager = {
   },
 
   /* ════════════════════════════════════════════
+     CHANGE PASSWORD MODAL (profile section)
+     Two paths: Current PW → New PW  |  OTP → New PW
+  ════════════════════════════════════════════ */
+  _injectChangePwModal() {
+    if (document.getElementById('changePwBackdrop')) return;
+    document.body.insertAdjacentHTML('beforeend', `
+      <div id="changePwBackdrop" style="
+        display:none;position:fixed;inset:0;z-index:9999;
+        background:rgba(15,23,42,0.55);backdrop-filter:blur(4px);
+        align-items:center;justify-content:center;" role="dialog" aria-modal="true">
+        <div style="
+          background:#fff;border-radius:20px;padding:32px 28px;width:100%;max-width:420px;
+          box-shadow:0 20px 60px rgba(0,0,0,0.18);position:relative;margin:16px;">
+
+          <!-- Close -->
+          <button id="changePwClose" aria-label="Close" style="
+            position:absolute;top:14px;right:16px;background:none;border:none;
+            font-size:22px;cursor:pointer;color:#94a3b8;line-height:1;">×</button>
+
+          <!-- Header -->
+          <div style="text-align:center;margin-bottom:22px;">
+            <div style="font-size:2.2rem;margin-bottom:8px;">🔐</div>
+            <div style="font-size:18px;font-weight:700;color:#0f172a;">Change Password</div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px;">Update your account password</div>
+          </div>
+
+          <!-- Method tabs -->
+          <div style="display:flex;gap:8px;margin-bottom:20px;">
+            <button id="cpTabPw" style="
+              flex:1;padding:9px;border-radius:10px;border:2px solid #6366f1;
+              background:#6366f1;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">
+              Current Password
+            </button>
+            <button id="cpTabOtp" style="
+              flex:1;padding:9px;border-radius:10px;border:2px solid #e2e8f0;
+              background:#f8fafc;color:#64748b;font-size:13px;font-weight:600;cursor:pointer;">
+              Verify via OTP
+            </button>
+          </div>
+
+          <!-- Error -->
+          <div id="changePwError" style="
+            display:none;background:#fef2f2;border:1px solid #fecaca;color:#dc2626;
+            border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:14px;">
+          </div>
+
+          <!-- ── Tab 1: Current Password ── -->
+          <div id="cpSectionPw">
+            <div style="margin-bottom:14px;">
+              <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">Current Password</label>
+              <input id="cpCurrentPw" type="password" placeholder="Enter current password"
+                style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;
+                       font-size:14px;outline:none;box-sizing:border-box;"/>
+            </div>
+            <div style="margin-bottom:14px;">
+              <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">New Password</label>
+              <input id="cpNewPw" type="password" placeholder="Min. 6 characters"
+                style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;
+                       font-size:14px;outline:none;box-sizing:border-box;"/>
+            </div>
+            <div style="margin-bottom:18px;">
+              <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">Confirm New Password</label>
+              <input id="cpConfirmPw" type="password" placeholder="Repeat new password"
+                style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;
+                       font-size:14px;outline:none;box-sizing:border-box;"/>
+            </div>
+            <button id="cpSubmitPw" style="
+              width:100%;padding:13px;border:none;border-radius:12px;
+              background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;
+              font-size:14px;font-weight:700;cursor:pointer;">Update Password</button>
+          </div>
+
+          <!-- ── Tab 2: OTP verify ── -->
+          <div id="cpSectionOtp" style="display:none;">
+            <!-- Step 1: send OTP -->
+            <div id="cpOtpStep1">
+              <div style="font-size:13px;color:#64748b;margin-bottom:14px;text-align:center;">
+                We'll send a 6-digit OTP to your registered email address.
+              </div>
+              <button id="cpSendOtp" style="
+                width:100%;padding:13px;border:none;border-radius:12px;
+                background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;
+                font-size:14px;font-weight:700;cursor:pointer;">Send OTP to Email</button>
+            </div>
+            <!-- Step 2: verify OTP + new password -->
+            <div id="cpOtpStep2" style="display:none;">
+              <div id="cpOtpInfo" style="
+                background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;
+                border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:14px;">
+                ✉️ OTP sent! Check your inbox.
+              </div>
+              <div style="margin-bottom:14px;">
+                <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">Enter OTP Code</label>
+                <input id="cpOtpCode" type="text" placeholder="6-digit code" maxlength="6" inputmode="numeric"
+                  style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;
+                         font-size:18px;letter-spacing:4px;text-align:center;outline:none;box-sizing:border-box;"/>
+              </div>
+              <div style="margin-bottom:14px;">
+                <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">New Password</label>
+                <input id="cpOtpNewPw" type="password" placeholder="Min. 6 characters"
+                  style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;
+                         font-size:14px;outline:none;box-sizing:border-box;"/>
+              </div>
+              <div style="margin-bottom:18px;">
+                <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">Confirm New Password</label>
+                <input id="cpOtpConfirmPw" type="password" placeholder="Repeat new password"
+                  style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;
+                         font-size:14px;outline:none;box-sizing:border-box;"/>
+              </div>
+              <button id="cpSubmitOtp" style="
+                width:100%;padding:13px;border:none;border-radius:12px;
+                background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;
+                font-size:14px;font-weight:700;cursor:pointer;">Verify & Update Password</button>
+              <div style="text-align:center;margin-top:10px;">
+                <button id="cpResendOtp" style="background:none;border:none;color:#6366f1;
+                  font-size:13px;cursor:pointer;text-decoration:underline;">Resend OTP</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `);
+    this._bindChangePwEvents();
+  },
+
+  _openChangePwModal() {
+    this._injectChangePwModal();
+    /* Reset to default state */
+    const ids = ['cpCurrentPw','cpNewPw','cpConfirmPw','cpOtpCode','cpOtpNewPw','cpOtpConfirmPw'];
+    ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    document.getElementById('changePwError').style.display = 'none';
+    document.getElementById('cpSectionPw').style.display   = 'block';
+    document.getElementById('cpSectionOtp').style.display  = 'none';
+    document.getElementById('cpOtpStep1').style.display    = 'block';
+    document.getElementById('cpOtpStep2').style.display    = 'none';
+    this._cpSetTab('pw');
+    document.getElementById('changePwBackdrop').style.display = 'flex';
+  },
+
+  _cpSetTab(tab) {
+    const isPw = tab === 'pw';
+    document.getElementById('cpSectionPw').style.display  = isPw ? 'block' : 'none';
+    document.getElementById('cpSectionOtp').style.display = isPw ? 'none' : 'block';
+    document.getElementById('cpTabPw').style.background   = isPw ? '#6366f1' : '#f8fafc';
+    document.getElementById('cpTabPw').style.color        = isPw ? '#fff' : '#64748b';
+    document.getElementById('cpTabPw').style.borderColor  = isPw ? '#6366f1' : '#e2e8f0';
+    document.getElementById('cpTabOtp').style.background  = isPw ? '#f8fafc' : '#6366f1';
+    document.getElementById('cpTabOtp').style.color       = isPw ? '#64748b' : '#fff';
+    document.getElementById('cpTabOtp').style.borderColor = isPw ? '#e2e8f0' : '#6366f1';
+    document.getElementById('changePwError').style.display = 'none';
+  },
+
+  _cpShowError(msg) {
+    const el = document.getElementById('changePwError');
+    el.textContent = msg;
+    el.style.display = 'block';
+  },
+
+  _cpShowSuccess(msg) {
+    document.body.insertAdjacentHTML('beforeend', `
+      <div id="cpSuccessToast" style="
+        position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+        background:#22c55e;color:#fff;padding:12px 24px;border-radius:12px;
+        font-size:14px;font-weight:600;z-index:99999;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+        ✅ ${msg}
+      </div>`);
+    setTimeout(() => document.getElementById('cpSuccessToast')?.remove(), 3500);
+  },
+
+  _bindChangePwEvents() {
+    /* Close */
+    document.getElementById('changePwClose').addEventListener('click', () => {
+      document.getElementById('changePwBackdrop').style.display = 'none';
+    });
+    document.getElementById('changePwBackdrop').addEventListener('click', (e) => {
+      if (e.target.id === 'changePwBackdrop')
+        document.getElementById('changePwBackdrop').style.display = 'none';
+    });
+
+    /* Tabs */
+    document.getElementById('cpTabPw').addEventListener('click',  () => this._cpSetTab('pw'));
+    document.getElementById('cpTabOtp').addEventListener('click', () => this._cpSetTab('otp'));
+
+    /* ── Tab 1: Current PW submit ── */
+    document.getElementById('cpSubmitPw').addEventListener('click', async () => {
+      const currentPw = document.getElementById('cpCurrentPw').value;
+      const newPw     = document.getElementById('cpNewPw').value;
+      const confirmPw = document.getElementById('cpConfirmPw').value;
+      const btn       = document.getElementById('cpSubmitPw');
+
+      document.getElementById('changePwError').style.display = 'none';
+      if (!currentPw) return this._cpShowError('Please enter your current password.');
+      if (newPw.length < 6) return this._cpShowError('New password must be at least 6 characters.');
+      if (newPw !== confirmPw) return this._cpShowError('New passwords do not match.');
+
+      btn.disabled = true; btn.textContent = 'Updating…';
+      try {
+        /* Re-authenticate with current password */
+        const email = this._user?.email;
+        const { error: signInErr } = await this._client.auth.signInWithPassword({ email, password: currentPw });
+        if (signInErr) throw new Error('Current password is incorrect.');
+
+        /* Update to new password in Supabase */
+        const { error } = await this._client.auth.updateUser({ password: newPw });
+        if (error) throw error;
+
+        document.getElementById('changePwBackdrop').style.display = 'none';
+        this._cpShowSuccess('Password updated successfully!');
+      } catch (err) {
+        this._cpShowError(err.message || 'Failed to update password.');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Update Password';
+      }
+    });
+
+    /* ── Tab 2: Send OTP ── */
+    document.getElementById('cpSendOtp').addEventListener('click', async () => {
+      const btn = document.getElementById('cpSendOtp');
+      btn.disabled = true; btn.textContent = 'Sending…';
+      document.getElementById('changePwError').style.display = 'none';
+      try {
+        const email = this._user?.email;
+        if (!email) throw new Error('No email found for this account.');
+        const { error } = await this._client.auth.signInWithOtp({ email, options: { shouldCreateUser: false } });
+        if (error) throw error;
+        document.getElementById('cpOtpStep1').style.display = 'none';
+        document.getElementById('cpOtpStep2').style.display = 'block';
+      } catch (err) {
+        this._cpShowError(err.message || 'Failed to send OTP.');
+        btn.disabled = false; btn.textContent = 'Send OTP to Email';
+      }
+    });
+
+    /* Resend OTP */
+    document.getElementById('cpResendOtp').addEventListener('click', () => {
+      document.getElementById('cpOtpStep1').style.display = 'block';
+      document.getElementById('cpOtpStep2').style.display = 'none';
+      document.getElementById('cpOtpCode').value = '';
+    });
+
+    /* ── Tab 2: Verify OTP + Update password ── */
+    document.getElementById('cpSubmitOtp').addEventListener('click', async () => {
+      const otp       = document.getElementById('cpOtpCode').value.trim();
+      const newPw     = document.getElementById('cpOtpNewPw').value;
+      const confirmPw = document.getElementById('cpOtpConfirmPw').value;
+      const btn       = document.getElementById('cpSubmitOtp');
+
+      document.getElementById('changePwError').style.display = 'none';
+      if (otp.length < 6) return this._cpShowError('Please enter the 6-digit OTP code.');
+      if (newPw.length < 6) return this._cpShowError('New password must be at least 6 characters.');
+      if (newPw !== confirmPw) return this._cpShowError('Passwords do not match.');
+
+      btn.disabled = true; btn.textContent = 'Verifying…';
+      try {
+        const email = this._user?.email;
+        /* Verify OTP */
+        const { error: otpErr } = await this._client.auth.verifyOtp({ email, token: otp, type: 'email' });
+        if (otpErr) throw new Error('Invalid or expired OTP. Please try again.');
+
+        /* Update password in Supabase */
+        const { error } = await this._client.auth.updateUser({ password: newPw });
+        if (error) throw error;
+
+        document.getElementById('changePwBackdrop').style.display = 'none';
+        this._cpShowSuccess('Password updated successfully!');
+      } catch (err) {
+        this._cpShowError(err.message || 'Failed to update password.');
+        btn.disabled = false; btn.textContent = 'Verify & Update Password';
+      }
+    });
+  },
+
+  /* ════════════════════════════════════════════
      UPDATE PASSWORD (saves to Supabase database)
   ════════════════════════════════════════════ */
   async _handleNewPasswordSubmit() {
