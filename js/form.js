@@ -138,7 +138,7 @@ window.FormManager = {
   _createEntryData(type, id) {
     const base = { _id: id };
     if (type === 'education') {
-      return { ...base, degree: '', school: '', field: '', period: '', gpa: '', description: '' };
+      return { ...base, degree: '', school: '', field: '', period: '', gpaType: '', gpa: '', description: '' };
     } else if (type === 'experience') {
       return { ...base, position: '', company: '', period: '', location: '', description: '' };
     } else {
@@ -153,7 +153,7 @@ window.FormManager = {
     div.dataset.type = type;
 
     const labels = {
-      education: { title: 'Degree / Certificate', sub: 'Institution', second: 'Field of Study', third: 'GPA / Grade', period: true, desc: true },
+      education: { title: 'Degree / Certificate', sub: 'Institution', second: 'Field of Study', period: true, desc: true },
       experience: { title: 'Job Title / Position', sub: 'Company / Organization', second: 'Location', third: null, period: true, desc: true },
       projects: { title: 'Project Name', sub: 'Technologies Used', second: 'Project Link', third: null, period: true, desc: true }
     };
@@ -204,9 +204,20 @@ window.FormManager = {
           </div>` : ''}
         </div>
         ${type === 'education' ? `
-        <div class="field-group">
-          <label class="field-label">GPA / Grade (optional)</label>
-          <input class="field-input" type="text" data-field="gpa" placeholder="e.g. 3.8/4.0" />
+        <div class="form-grid-2">
+          <div class="field-group">
+            <label class="field-label">Grade Type <span style="font-weight:400;font-size:0.75rem;color:var(--gray-400);">(optional)</span></label>
+            <select class="field-input" data-field="gpaType" data-select="true">
+              <option value="">— None / Not applicable —</option>
+              <option value="GPA">GPA (e.g. 3.8 / 4.0)</option>
+              <option value="CGPA">CGPA (e.g. 8.9 / 10)</option>
+              <option value="Percentage">Percentage (e.g. 85%)</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Grade Value <span style="font-weight:400;font-size:0.75rem;color:var(--gray-400);">(optional)</span></label>
+            <input class="field-input" type="text" data-field="gpa" placeholder="e.g. 3.8/4.0 · 8.9/10 · 85%" value="${this._escHtml(entry.gpa || '')}" />
+          </div>
         </div>` : ''}
         <div class="field-group">
           <label class="field-label">Description / Details</label>
@@ -246,9 +257,10 @@ window.FormManager = {
       }, 200);
     });
 
-    // Live input binding
+    // Live input binding (inputs + selects)
     div.querySelectorAll('[data-field]').forEach(input => {
-      input.addEventListener('input', () => {
+      const evt = input.tagName === 'SELECT' ? 'change' : 'input';
+      input.addEventListener(evt, () => {
         const field = input.dataset.field;
         const arr = window.ResumeApp.state[type];
         const obj = arr.find(e => e._id === id);
@@ -458,7 +470,13 @@ window.FormManager = {
   _populateEntryInputs(el, data) {
     el.querySelectorAll('[data-field]').forEach(input => {
       const field = input.dataset.field;
-      if (data[field] !== undefined) input.value = data[field];
+      if (data[field] !== undefined) {
+        if (input.tagName === 'SELECT') {
+          input.value = data[field] || '';
+        } else {
+          input.value = data[field];
+        }
+      }
     });
     // Update the displayed header title
     const headerTitle = el.querySelector('[data-header-title]');

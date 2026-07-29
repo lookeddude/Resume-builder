@@ -228,16 +228,16 @@ window.ResumeApp = {
     this.state.education = isPremium ? [
       { _id: 1, degree: 'B.Tech in Computer Science & Engineering',
         school: 'Indian Institute of Technology (IIT)', field: 'Computer Science & Engineering',
-        period: '2016-07 – 2020-05', gpa: '8.9/10',
+        period: '2016-07 – 2020-05', gpaType: 'CGPA', gpa: '8.9/10',
         description: 'Specialized in Algorithms, Distributed Systems, and Advanced Database Systems. Graduated with Honors.' }
     ] : [
       { _id: 1, degree: 'B.Sc. Computer Science',
         school: 'University of California, Berkeley', field: 'Computer Science & Engineering',
-        period: '2014 – 2018', gpa: '3.85 / 4.0',
+        period: '2014 – 2018', gpaType: 'GPA', gpa: '3.85 / 4.0',
         description: 'Dean\'s List — 4 consecutive years' },
       { _id: 2, degree: 'AWS Certified Solutions Architect',
         school: 'Amazon Web Services', field: 'Cloud Computing',
-        period: 'Mar 2021', gpa: '',
+        period: 'Mar 2021', gpaType: '', gpa: '',
         description: 'Professional-level certification covering cloud architecture, security, and cost optimization.' }
     ];
     fm._counters.education = this.state.education.length;

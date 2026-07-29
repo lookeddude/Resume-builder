@@ -104,7 +104,8 @@ window.TemplateEngine = {
             <span class="tpl1-entry-title">${this._esc(e.degree || '')}</span>
             ${e.period ? `<span class="tpl1-entry-period">${this._esc(e.period)}</span>` : ''}
           </div>
-          ${e.school ? `<div class="tpl1-entry-sub">${this._esc(e.school)}${e.field ? ` · ${this._esc(e.field)}` : ''}${e.gpa ? ` · GPA: ${this._esc(e.gpa)}` : ''}</div>` : ''}
+          ${e.school ? `<div class="tpl1-entry-sub">${this._esc(e.school)}${e.field ? ` · ${this._esc(e.field)}` : ''}${(e.gpaType || e.gpa) && e.gpa ? ` · ${this._esc(e.gpaType || 'GPA')}: ${this._esc(e.gpa)}` : ''}</div>` : ''}
+
           ${e.description ? `<div class="tpl1-entry-desc">${this._nl2bullets(e.description)}</div>` : ''}
         </div>
       `).join('');
@@ -173,7 +174,7 @@ window.TemplateEngine = {
           ${e.period ? `<div class="tpl2-entry-period">${this._esc(e.period)}</div>` : ''}
           ${e.school ? `<div class="tpl2-entry-sub">${this._esc(e.school)}</div>` : ''}
           ${e.field ? `<div style="font-size:8.5pt;color:#64748B;">${this._esc(e.field)}</div>` : ''}
-          ${e.gpa ? `<div style="font-size:8.5pt;color:#64748B;">GPA: ${this._esc(e.gpa)}</div>` : ''}
+          ${(e.gpaType || e.gpa) && e.gpa ? `<div style="font-size:8.5pt;color:#64748B;">${this._esc(e.gpaType || 'GPA')}: ${this._esc(e.gpa)}</div>` : ''}
         </div>
       `).join('');
       leftParts.push(`<div class="tpl2-section"><div class="tpl2-section-title">Education</div>${entries}</div>`);
@@ -293,7 +294,7 @@ window.TemplateEngine = {
           ${e.school ? `<div style="font-size:9pt;color:#7C3AED;font-weight:500;">${this._esc(e.school)}</div>` : ''}
           ${e.field ? `<div style="font-size:8.5pt;color:#64748B;">${this._esc(e.field)}</div>` : ''}
           ${e.period ? `<div style="font-size:8.5pt;color:#94A3B8;">${this._esc(e.period)}</div>` : ''}
-          ${e.gpa ? `<div style="font-size:8.5pt;color:#64748B;">GPA: ${this._esc(e.gpa)}</div>` : ''}
+          ${(e.gpaType || e.gpa) && e.gpa ? `<div style="font-size:8.5pt;color:#64748B;">${this._esc(e.gpaType || 'GPA')}: ${this._esc(e.gpa)}</div>` : ''}
         </div>
       `).join('');
       sidebarParts.push(`
@@ -466,7 +467,7 @@ window.TemplateEngine = {
           ${e.school ? `<div style="font-size:8pt;color:#93C5FD;">${this._esc(e.school)}</div>` : ''}
           ${e.field  ? `<div style="font-size:7.5pt;color:rgba(255,255,255,0.5);">${this._esc(e.field)}</div>` : ''}
           ${e.period ? `<div style="font-size:7.5pt;color:rgba(255,255,255,0.45);">${this._esc(e.period)}</div>` : ''}
-          ${e.gpa    ? `<div style="font-size:7.5pt;color:rgba(255,255,255,0.5);">CGPA: ${this._esc(e.gpa)}</div>` : ''}
+          ${(e.gpaType || e.gpa) && e.gpa ? `<div style="font-size:7.5pt;color:rgba(255,255,255,0.5);">${this._esc(e.gpaType || 'GPA')}: ${this._esc(e.gpa)}</div>` : ''}
         </div>`).join('');
       sidebarParts.push(`
         <div style="margin-bottom:20px;">
