@@ -216,7 +216,7 @@ window.AuthManager = {
                 <label for="authPasswordInput">Password</label>
                 <div class="auth-input-wrap">
                   <span class="auth-input-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-                  <input class="auth-input" type="password" id="authPasswordInput" placeholder="Min. 6 characters" autocomplete="current-password" required/>
+                  <input class="auth-input" type="password" id="authPasswordInput" placeholder="Min. 8 characters" autocomplete="current-password" required/>
                   <button type="button" class="auth-pw-toggle" id="authPwToggle" aria-label="Toggle password">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="eyeIcon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
@@ -274,7 +274,7 @@ window.AuthManager = {
                 <label for="newPasswordInput">New Password</label>
                 <div class="auth-input-wrap">
                   <span class="auth-input-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-                  <input class="auth-input" type="password" id="newPasswordInput" placeholder="Min. 6 characters" autocomplete="new-password"/>
+                  <input class="auth-input" type="password" id="newPasswordInput" placeholder="Min. 8 characters" autocomplete="new-password"/>
                   <button type="button" class="auth-pw-toggle" id="newPwToggle" aria-label="Toggle password">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="newEyeIcon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
@@ -585,7 +585,7 @@ window.AuthManager = {
             </div>
             <div style="margin-bottom:14px;">
               <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">New Password</label>
-              <input id="cpNewPw" type="password" placeholder="Min. 6 characters"
+              <input id="cpNewPw" type="password" placeholder="Min. 8 characters"
                 style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;
                        font-size:14px;outline:none;box-sizing:border-box;"/>
             </div>
@@ -628,7 +628,7 @@ window.AuthManager = {
               </div>
               <div style="margin-bottom:14px;">
                 <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">New Password</label>
-                <input id="cpOtpNewPw" type="password" placeholder="Min. 6 characters"
+                <input id="cpOtpNewPw" type="password" placeholder="Min. 8 characters"
                   style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;
                          font-size:14px;outline:none;box-sizing:border-box;"/>
               </div>
@@ -721,7 +721,8 @@ window.AuthManager = {
 
       document.getElementById('changePwError').style.display = 'none';
       if (!currentPw) return this._cpShowError('Please enter your current password.');
-      if (newPw.length < 6) return this._cpShowError('New password must be at least 6 characters.');
+      const pwErr = this._validatePasswordStrength(newPw);
+      if (pwErr) return this._cpShowError(pwErr);
       if (newPw !== confirmPw) return this._cpShowError('New passwords do not match.');
 
       btn.disabled = true; btn.textContent = 'Updating…';
@@ -778,7 +779,8 @@ window.AuthManager = {
 
       document.getElementById('changePwError').style.display = 'none';
       if (otp.length < 6) return this._cpShowError('Please enter the 6-digit OTP code.');
-      if (newPw.length < 6) return this._cpShowError('New password must be at least 6 characters.');
+      const pwErr = this._validatePasswordStrength(newPw);
+      if (pwErr) return this._cpShowError(pwErr);
       if (newPw !== confirmPw) return this._cpShowError('Passwords do not match.');
 
       btn.disabled = true; btn.textContent = 'Verifying…';
@@ -811,8 +813,8 @@ window.AuthManager = {
 
     this._clearError();
 
-    if (!password || password.length < 6)
-      return this._showError('Password must be at least 6 characters.');
+    const pwErr = this._validatePasswordStrength(password);
+    if (pwErr) return this._showError(pwErr);
     if (password !== confirm)
       return this._showError('Passwords do not match. Please re-enter.');
 
@@ -1203,6 +1205,18 @@ window.AuthManager = {
     document.getElementById('authErrorMsg')?.classList.remove('visible');
   },
   _validateEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); },
+
+  /**
+   * Returns null if password is strong, or an error string if weak.
+   * Rules: 8+ chars, at least one uppercase, one lowercase, one digit.
+   */
+  _validatePasswordStrength(pw) {
+    if (!pw || pw.length < 8)         return 'Password must be at least 8 characters.';
+    if (!/[A-Z]/.test(pw))            return 'Password must contain at least one uppercase letter.';
+    if (!/[a-z]/.test(pw))            return 'Password must contain at least one lowercase letter.';
+    if (!/[0-9]/.test(pw))            return 'Password must contain at least one number.';
+    return null; // ✅ strong
+  },
   _setLoading(btn, on) {
     btn.disabled = on;
     btn.classList.toggle('loading', on);
