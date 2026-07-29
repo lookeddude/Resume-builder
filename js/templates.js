@@ -273,9 +273,6 @@ window.TemplateEngine = {
         </div>`;
     }
 
-    // SIDEBAR
-    const sidebarParts = [];
-
     // ── Build sidebar blocks ──
     const sidebarBlocks = {};
 
