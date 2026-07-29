@@ -111,19 +111,19 @@ window.PDFManager = {
     }
 
     const printDoc = this._buildPrintDocument(html, templatesCss, filename);
-    const blob = new Blob([printDoc], { type: 'text/html;charset=utf-8' });
-    const blobUrl = URL.createObjectURL(blob);
 
-    /* Open in new tab */
-    const win = window.open(blobUrl, '_blank', 'noopener');
-
-    /* Revoke blob URL after 60 seconds */
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    /* Use document.write() — browser respects @page CSS (size + margin) far
+       better than Blob URLs, which some browsers treat as 'about:blank' origin */
+    const win = window.open('', '_blank');
 
     if (!win) {
       window.ResumeApp.showToast('⚠️ Popups are blocked. Please allow popups for this site and try again.', 'error');
       return false;
     }
+
+    win.document.open();
+    win.document.write(printDoc);
+    win.document.close();
 
     return true;
   },
@@ -140,10 +140,10 @@ window.PDFManager = {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,400;1,700&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet"/>
   <style>
-    /* ── Page Setup ── */
+    /* ── Page Setup: Force A4, zero margins ── */
     @page {
-      size: A4 portrait;
-      margin: 0mm;
+      size: 210mm 297mm;     /* explicit A4 dimensions — Chrome honours this */
+      margin: 0mm 0mm 0mm 0mm;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -152,6 +152,7 @@ window.PDFManager = {
       font-size: 16px;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
+      color-adjust: exact;
     }
 
     body {
@@ -253,23 +254,24 @@ window.PDFManager = {
     }
     #resumeOutput * { box-sizing: border-box; }
 
-    /* ── PRINT MODE: Hide guide, show pure resume ── */
+    /* ── PRINT MODE: Force A4, zero margins, no decorations ── */
     @media print {
-      body {
-        background: #fff;
-        margin: 0;
-        padding: 0;
+      @page {
+        size: 210mm 297mm;
+        margin: 0 !important;
       }
-      .pdf-guide-bar  { display: none !important; }
-      .resume-container { padding: 0 !important; }
-      .resume-page-wrap {
-        width: 210mm;
-        box-shadow: none;
-        border-radius: 0;
+      html, body {
+        width: 210mm !important;
+        height: 297mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+        overflow: visible !important;
       }
-      #resumeOutput {
-        width: 210mm;
-      }
+      .pdf-guide-bar     { display: none !important; }
+      .resume-container  { padding: 0 !important; margin: 0 !important; display: block !important; }
+      .resume-page-wrap  { width: 210mm !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; }
+      #resumeOutput      { width: 210mm !important; }
     }
 
     /* ── Template Styles (inlined from templates.css) ── */
@@ -284,8 +286,8 @@ window.PDFManager = {
       <h3>💼 Save Your Resume as PDF</h3>
       <div class="pdf-guide-steps">
         <span class="pdf-step"><span class="pdf-step-num">1</span> Click "Save as PDF" →</span>
-        <span class="pdf-step"><span class="pdf-step-num">2</span> Destination: "Save as PDF" →</span>
-        <span class="pdf-step"><span class="pdf-step-num">3</span> Paper: A4 →</span>
+        <span class="pdf-step"><span class="pdf-step-num">2</span> Destination → "Save as PDF" →</span>
+        <span class="pdf-step"><span class="pdf-step-num">3</span> Paper: A4 (auto-set) →</span>
         <span class="pdf-step"><span class="pdf-step-num">4</span> Margins: None → Save</span>
       </div>
     </div>
