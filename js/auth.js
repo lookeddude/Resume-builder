@@ -86,6 +86,20 @@ window.AuthManager = {
     const hash   = window.location.hash;
     const params = new URLSearchParams(window.location.search);
 
+    /* ── Password Recovery redirect (type=recovery in hash) ── */
+    const hashParams = new URLSearchParams(hash.replace(/^#/, ''));
+    if (hashParams.get('type') === 'recovery') {
+      await new Promise(r => setTimeout(r, 600)); /* Let Supabase exchange the token */
+      const { data: { session } } = await this._client.auth.getSession();
+      if (session?.user) {
+        this._user = session.user;
+        history.replaceState(null, '', window.location.pathname);
+        /* Show the Set New Password form */
+        setTimeout(() => this._showNewPasswordModal(), 400);
+      }
+      return; /* Don't process as a normal sign-in */
+    }
+
     /* OAuth redirects back with access_token in hash — Supabase handles automatically. */
     if (hash.includes('access_token') || params.get('code')) {
       await new Promise(r => setTimeout(r, 500)); /* Let Supabase parse the URL */
@@ -106,7 +120,7 @@ window.AuthManager = {
           } else {
             window.ResumeApp?.showToast('✅ Signed in successfully!', 'success');
           }
-        }, 400); /* slight delay so FormManager is fully ready */
+        }, 400);
 
         /* Resume callback if any */
         if (typeof this._onSuccessCallback === 'function') {
@@ -249,6 +263,36 @@ window.AuthManager = {
               </div>
             </div>
 
+            <!-- ── Set New Password Section (shown after clicking reset link in email) ── -->
+            <div id="newPasswordSection" style="display:none;">
+              <div style="text-align:center;margin-bottom:18px;">
+                <div style="font-size:2.5rem;margin-bottom:8px;">🔐</div>
+                <div style="font-size:16px;font-weight:700;color:#1e293b;">Set New Password</div>
+                <div style="font-size:12px;color:#64748b;margin-top:5px;">Enter your new password below</div>
+              </div>
+              <div class="auth-field">
+                <label for="newPasswordInput">New Password</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+                  <input class="auth-input" type="password" id="newPasswordInput" placeholder="Min. 6 characters" autocomplete="new-password"/>
+                  <button type="button" class="auth-pw-toggle" id="newPwToggle" aria-label="Toggle password">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="newEyeIcon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="auth-field">
+                <label for="confirmPasswordInput">Confirm Password</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+                  <input class="auth-input" type="password" id="confirmPasswordInput" placeholder="Repeat new password" autocomplete="new-password"/>
+                </div>
+              </div>
+              <button class="auth-submit-btn" id="newPasswordSubmitBtn" style="margin-top:4px;">
+                <div class="btn-spinner"></div>
+                <span class="btn-text">Update Password</span>
+              </button>
+            </div>
+
             <!-- ── OTP form ── -->
             <div id="otpSection" style="display:none;">
 
@@ -372,6 +416,20 @@ window.AuthManager = {
     document.getElementById('otpVerifyBtn').addEventListener('click', () => this._verifyOtp());
     document.getElementById('otpResendBtn').addEventListener('click', () => this._resendOtp());
     document.getElementById('otpBackBtn').addEventListener('click',   () => this._resetOtpToSend());
+
+    /* New Password form (after reset link click) */
+    document.getElementById('newPasswordSubmitBtn').addEventListener('click', () => this._handleNewPasswordSubmit());
+    document.getElementById('newPwToggle').addEventListener('click', () => {
+      const inp  = document.getElementById('newPasswordInput');
+      const icon = document.getElementById('newEyeIcon');
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        icon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+      } else {
+        inp.type = 'password';
+        icon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+      }
+    });
   },
 
   /* ════════════════════════════════════════════
@@ -381,13 +439,19 @@ window.AuthManager = {
     this._onSuccessCallback = onSuccess;
     this._setMode(mode);
     this._clearError();
-    ['authEmailInput','authPasswordInput','authNameInput','otpEmailInput','otpCodeInput']
-      .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-    this._resetOtpToSend();
-    /* Save current form data before login — will be restored after auth */
-    window.ResumeApp?.saveStateDraft?.();
+    if (mode !== 'newpassword') {
+      ['authEmailInput','authPasswordInput','authNameInput','otpEmailInput','otpCodeInput']
+        .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      this._resetOtpToSend();
+      /* Save current form data before login — will be restored after auth */
+      window.ResumeApp?.saveStateDraft?.();
+    }
     document.getElementById('authBackdrop').style.display = 'flex';
-    setTimeout(() => document.getElementById('authEmailInput').focus(), 120);
+    if (mode === 'newpassword') {
+      setTimeout(() => document.getElementById('newPasswordInput').focus(), 120);
+    } else {
+      setTimeout(() => document.getElementById('authEmailInput').focus(), 120);
+    }
   },
 
   _hideModal() {
@@ -402,10 +466,12 @@ window.AuthManager = {
   ════════════════════════════════════════════ */
   _setMode(mode) {
     this._mode = mode;
-    const isOtp    = mode === 'otp';
-    const isSignup = mode === 'signup';
-    const isLogin  = mode === 'login';
+    const isOtp        = mode === 'otp';
+    const isSignup     = mode === 'signup';
+    const isLogin      = mode === 'login';
+    const isNewPw      = mode === 'newpassword';
 
+    /* Tab highlights */
     ['authTabLogin','authTabSignup','authTabOtp'].forEach(id => {
       const tab = document.getElementById(id);
       const active = (id === 'authTabLogin' && isLogin)
@@ -415,31 +481,96 @@ window.AuthManager = {
       tab.setAttribute('aria-selected', String(active));
     });
 
-    /* Always hide reset section when switching tabs */
-    document.getElementById('resetSection').style.display  = 'none';
-    document.getElementById('authForm').style.display      = isOtp ? 'none' : 'block';
-    document.getElementById('otpSection').style.display    = isOtp ? 'block' : 'none';
-    document.getElementById('authNameField').style.display = isSignup ? 'block' : 'none';
-    document.getElementById('authFooterLink').style.display = isOtp ? 'none' : 'block';
-    /* Show forgot link only on login tab */
-    document.getElementById('authForgotRow').style.display = isLogin ? 'block' : 'none';
+    /* Show/hide sections */
+    document.getElementById('resetSection').style.display      = 'none';
+    document.getElementById('newPasswordSection').style.display = isNewPw ? 'block' : 'none';
+    document.getElementById('authForm').style.display          = (!isOtp && !isNewPw) ? 'block' : 'none';
+    document.getElementById('otpSection').style.display        = isOtp  ? 'block' : 'none';
+    document.getElementById('authNameField').style.display     = isSignup ? 'block' : 'none';
+    document.getElementById('authFooterLink').style.display    = (isOtp || isNewPw) ? 'none' : 'block';
+    document.getElementById('authForgotRow').style.display     = isLogin ? 'block' : 'none';
 
-    document.getElementById('authSubmitText').textContent = isLogin ? 'Login' : 'Create Account';
+    /* Hide tabs + Google btn + divider when in new-password mode */
+    const authBody = document.querySelector('.auth-tabs');
+    const googleBtn = document.getElementById('authGoogleBtn');
+    const divider = document.querySelector('.auth-divider');
+    if (authBody) authBody.style.display  = isNewPw ? 'none' : '';
+    if (googleBtn) googleBtn.style.display = isNewPw ? 'none' : '';
+    if (divider)  divider.style.display   = isNewPw ? 'none' : '';
 
-    if (!isOtp) {
+    /* Title / subtitle */
+    document.getElementById('authModalTitle').textContent    = isNewPw ? 'Update Password' : 'Welcome to RaazLab';
+    document.getElementById('authModalSubtitle').textContent = isNewPw
+      ? 'Choose a strong new password for your account'
+      : isOtp
+        ? 'Get a one-time code sent to your email'
+        : isSignup
+          ? 'Create a free account to save & download resumes'
+          : 'Sign in to save & download your resume';
+
+    if (!isOtp && !isNewPw) {
+      document.getElementById('authSubmitText').textContent = isLogin ? 'Login' : 'Create Account';
       const footer = document.getElementById('authFooterLink');
       footer.childNodes[0].textContent = isLogin ? "Don't have an account? " : 'Already have an account? ';
       document.getElementById('authSwitchBtn').textContent = isLogin ? 'Sign Up' : 'Login';
     }
 
-    document.getElementById('authModalSubtitle').textContent = isOtp
-      ? 'Get a one-time code sent to your email'
-      : isSignup
-        ? 'Create a free account to save & download resumes'
-        : 'Sign in to save & download your resume';
-
     document.getElementById('authPasswordInput').autocomplete = isLogin ? 'current-password' : 'new-password';
     this._clearError();
+  },
+
+  /* ════════════════════════════════════════════
+     SHOW NEW-PASSWORD MODAL (recovery redirect)
+  ════════════════════════════════════════════ */
+  _showNewPasswordModal() {
+    /* Inject modal if it hasn't been injected yet */
+    if (!document.getElementById('authBackdrop')) this._injectModal();
+    this._showModal('newpassword');
+  },
+
+  /* ════════════════════════════════════════════
+     UPDATE PASSWORD (saves to Supabase database)
+  ════════════════════════════════════════════ */
+  async _handleNewPasswordSubmit() {
+    const password = document.getElementById('newPasswordInput').value;
+    const confirm  = document.getElementById('confirmPasswordInput').value;
+    const btn      = document.getElementById('newPasswordSubmitBtn');
+
+    this._clearError();
+
+    if (!password || password.length < 6)
+      return this._showError('Password must be at least 6 characters.');
+    if (password !== confirm)
+      return this._showError('Passwords do not match. Please re-enter.');
+
+    this._setLoading(btn, true);
+    try {
+      /* updateUser saves the new password to Supabase Auth database */
+      const { error } = await this._client.auth.updateUser({ password });
+      if (error) throw error;
+
+      /* ✔ Success — replace form with confirmation */
+      document.getElementById('newPasswordSection').innerHTML = `
+        <div style="text-align:center;padding:24px 0;">
+          <div style="font-size:3.5rem;margin-bottom:14px;">✅</div>
+          <div style="font-size:17px;font-weight:700;color:#22c55e;margin-bottom:8px;">Password Updated!</div>
+          <div style="font-size:13px;color:#64748b;line-height:1.6;">
+            Your password has been successfully updated<br>and saved to your account.
+          </div>
+        </div>`;
+
+      /* Update header + close modal after 2.5s */
+      this._updateHeaderUI();
+      window.NavManager?.updateAuthState(this._user);
+      setTimeout(() => {
+        this._hideModal();
+        window.ResumeApp?.showToast('✅ Password updated successfully! You are now logged in.', 'success');
+      }, 2500);
+
+    } catch (err) {
+      this._setLoading(btn, false);
+      this._showError(err.message || 'Failed to update password. Please try again.');
+    }
   },
 
   /* ════════════════════════════════════════════
