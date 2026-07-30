@@ -105,6 +105,14 @@ window.PreviewManager = {
       'width:100%',
     ].join(';');
 
+    /* Page background gradient for templates with left sidebar (T3 & T4) */
+    let pageBg = '#ffffff';
+    if (state.template === 4) {
+      pageBg = 'linear-gradient(to right, #1A2332 0px, #1A2332 220px, #ffffff 220px, #ffffff 100%)';
+    } else if (state.template === 3) {
+      pageBg = 'linear-gradient(to right, #F8FAFC 0px, #F8FAFC 220px, #ffffff 220px, #ffffff 100%)';
+    }
+
     for (let i = 0; i < numPages; i++) {
       const page = document.createElement('div');
       page.className = 'preview-page';
@@ -114,7 +122,7 @@ window.PreviewManager = {
         `height:${A4_H}px`,
         'overflow:hidden',
         'position:relative',
-        'background:#ffffff',
+        `background:${pageBg}`,
         'flex-shrink:0',
         'border-radius:3px',
         'box-shadow:0 4px 24px rgba(0,0,0,0.13),0 1px 4px rgba(0,0,0,0.06)',
