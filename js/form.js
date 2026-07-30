@@ -32,6 +32,15 @@ window.FormManager = {
         window.ResumeApp.schedulePreview();
       });
     });
+
+    // Phone country code selector
+    const codeEl = document.getElementById('phoneCode');
+    if (codeEl) {
+      codeEl.addEventListener('change', () => {
+        window.ResumeApp.state.personal.phoneCode = codeEl.value;
+        window.ResumeApp.schedulePreview();
+      });
+    }
   },
 
   // ─── Summary character counter ───
@@ -508,6 +517,15 @@ window.FormManager = {
       const el = document.getElementById(id);
       if (el) el.value = state.personal[id] || '';
     });
+
+    // Phone country code
+    const codeEl = document.getElementById('phoneCode');
+    if (codeEl) {
+      const code = state.personal.phoneCode || '+91';
+      const opt = codeEl.querySelector(`option[value="${CSS.escape(code)}"]`);
+      if (opt) opt.selected = true;
+      else codeEl.options[0].selected = true; // fallback to +91
+    }
 
     // Summary char counter
     const summary = document.getElementById('summary');

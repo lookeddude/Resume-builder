@@ -38,7 +38,11 @@ window.TemplateEngine = {
   _contactItems(p) {
     const items = [];
     if (p.email) items.push(`<span>✉ ${this._esc(p.email)}</span>`);
-    if (p.phone) items.push(`<span>📞 ${this._esc(p.phone)}</span>`);
+    if (p.phone) {
+      const code = (p.phoneCode || '+91').replace(/-[A-Z]+$/, ''); // strip -CA suffix
+      const fullPhone = p.phone ? `${code} ${p.phone}`.trim() : '';
+      if (fullPhone) items.push(`<span>📞 ${this._esc(fullPhone)}</span>`);
+    }
     if (p.address) items.push(`<span>📍 ${this._esc(p.address)}</span>`);
     if (p.linkedin) {
       const url = p.linkedin.replace(/^https?:\/\/(www\.)?/, '');
@@ -421,7 +425,7 @@ window.TemplateEngine = {
     /* Contact */
     const contactRows = [];
     if (p.email)    contactRows.push(`<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;"><span style="font-size:10pt;min-width:16px;">✉</span><span style="word-break:break-all;font-size:8.5pt;">${this._esc(p.email)}</span></div>`);
-    if (p.phone)    contactRows.push(`<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;"><span style="font-size:10pt;min-width:16px;">📞</span><span style="font-size:8.5pt;">${this._esc(p.phone)}</span></div>`);
+    if (p.phone)    { const code = (p.phoneCode || '+91').replace(/-[A-Z]+$/, ''); contactRows.push(`<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;"><span style="font-size:10pt;min-width:16px;">📞</span><span style="font-size:8.5pt;">${this._esc(code + ' ' + p.phone)}</span></div>`); }
     if (p.address)  contactRows.push(`<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;"><span style="font-size:10pt;min-width:16px;">📍</span><span style="font-size:8.5pt;">${this._esc(p.address)}</span></div>`);
     if (p.linkedin) { const url = p.linkedin.replace(/^https?:\/\/(www\.)?/,''); contactRows.push(`<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;"><span style="font-size:10pt;min-width:16px;">🔗</span><span style="word-break:break-all;font-size:8.5pt;">${this._esc(url)}</span></div>`); }
 

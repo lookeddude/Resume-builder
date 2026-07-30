@@ -13,6 +13,7 @@ window.ResumeApp = {
       jobTitle: '',
       email: '',
       phone: '',
+      phoneCode: '+91',
       address: '',
       linkedin: '',
       summary: ''
@@ -178,7 +179,7 @@ window.ResumeApp = {
   clearAll() {
     if (!confirm('Clear all data? This cannot be undone.')) return;
 
-    this.state.personal = { fullName: '', jobTitle: '', email: '', phone: '', address: '', linkedin: '', summary: '' };
+    this.state.personal = { fullName: '', jobTitle: '', email: '', phone: '', phoneCode: '+91', address: '', linkedin: '', summary: '' };
     this.state.skills = [];
     this.state.education = [];
     this.state.experience = [];
@@ -222,13 +223,13 @@ window.ResumeApp = {
     // ── Personal ──
     this.state.personal = isPremium ? {
       fullName: 'Rajnish Kumar', jobTitle: 'Lead Software Architect',
-      email: 'rajnish.kumar@email.dev', phone: '+91 98765 43210',
+      email: 'rajnish.kumar@email.dev', phone: '98765 43210', phoneCode: '+91',
       address: 'Mumbai, Maharashtra, India',
       linkedin: 'https://linkedin.com/in/rajnish-kumar',
       summary: 'Forward-thinking Software Architect with 8+ years of experience designing and executing enterprise web architectures. Proven expertise in React, Node.js, Cloud Services, and building scalable SaaS applications. Committed to clean code, performance optimization, and mentoring cross-functional engineering teams.'
     } : {
       fullName: 'Alexandra Chen', jobTitle: 'Senior Full-Stack Engineer',
-      email: 'alex.chen@email.com', phone: '+1 (415) 867-5309',
+      email: 'alex.chen@email.com', phone: '(415) 867-5309', phoneCode: '+1',
       address: 'San Francisco, CA',
       linkedin: 'https://linkedin.com/in/alexchen-dev',
       summary: 'Passionate full-stack engineer with 6+ years of experience building scalable web applications and distributed systems. Led cross-functional teams to ship products used by millions of users. Strong expertise in React, Node.js, and cloud infrastructure.'
