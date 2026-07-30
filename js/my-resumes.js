@@ -58,6 +58,15 @@ window.MyResumesPanel = {
             </svg>
             Save Current Resume
           </button>
+          <button class="mr-delete-all-btn" id="mrDeleteAll" title="Delete all saved resumes">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14H6L5 6"/>
+              <path d="M10 11v6M14 11v6"/>
+              <path d="M9 6V4h6v2"/>
+            </svg>
+            Delete All
+          </button>
           <span class="mr-save-status" id="mrSaveStatus"></span>
         </div>
 
@@ -97,6 +106,7 @@ window.MyResumesPanel = {
     document.getElementById('mrCloseBtn') .addEventListener('click', () => this.close());
     document.getElementById('mrOverlay')  .addEventListener('click', () => this.close());
     document.getElementById('mrSaveCurrent').addEventListener('click', () => this._saveCurrentResume());
+    document.getElementById('mrDeleteAll').addEventListener('click', () => this._deleteAllResumes());
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && this._isOpen) this.close();
     });
@@ -344,6 +354,54 @@ window.MyResumesPanel = {
       await this._loadList();
       window.ResumeApp?.showToast('🗑️ Resume deleted', 'success');
     }, 250);
+  },
+
+  /* ══════════════════════════════════
+     DELETE ALL RESUMES
+  ══════════════════════════════════ */
+  async _deleteAllResumes() {
+    /* Styled confirmation modal */
+    const confirmed = await new Promise(resolve => {
+      const backdrop = document.createElement('div');
+      backdrop.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(15,23,42,0.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;';
+      backdrop.innerHTML = `
+        <div style="background:#fff;border-radius:20px;padding:32px 28px;max-width:400px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,0.22);text-align:center;">
+          <div style="font-size:2.8rem;margin-bottom:12px;">🗑️</div>
+          <div style="font-size:18px;font-weight:800;color:#0f172a;margin-bottom:8px;">Delete All Resumes?</div>
+          <div style="font-size:13px;color:#64748b;line-height:1.7;margin-bottom:24px;">
+            This will permanently delete <strong>all your saved resumes</strong>
+            from your account and the database.<br>
+            <span style="color:#dc2626;font-weight:600;">This action cannot be undone.</span>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button id="mrDelAllCancel" style="flex:1;padding:11px;border:1.5px solid #e2e8f0;border-radius:12px;background:#f8fafc;color:#374151;font-size:14px;font-weight:600;cursor:pointer;">Cancel</button>
+            <button id="mrDelAllConfirm" style="flex:1;padding:11px;border:none;border-radius:12px;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;font-size:14px;font-weight:700;cursor:pointer;">Yes, Delete All</button>
+          </div>
+        </div>`;
+      document.body.appendChild(backdrop);
+      backdrop.querySelector('#mrDelAllCancel').onclick  = () => { backdrop.remove(); resolve(false); };
+      backdrop.querySelector('#mrDelAllConfirm').onclick = () => { backdrop.remove(); resolve(true); };
+      backdrop.addEventListener('click', e => { if (e.target === backdrop) { backdrop.remove(); resolve(false); } });
+    });
+
+    if (!confirmed) return;
+
+    /* Show loading */
+    window.ResumeApp?.showToast('⏳ Deleting all resumes…');
+
+    const { error } = await window.ResumeDB.deleteAll();
+    if (error) {
+      window.ResumeApp?.showToast('❌ Failed to delete: ' + error, 'error');
+      return;
+    }
+
+    /* Clear current resume tracking */
+    this._currentResumeId = null;
+    window.ResumeApp?._updateResumeCountBadge?.();
+    window.ResumeApp?.showToast('🗑️ All resumes deleted successfully', 'success');
+
+    /* Reload the (now empty) list */
+    await this._loadList();
   },
 
   _esc: str => String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'),

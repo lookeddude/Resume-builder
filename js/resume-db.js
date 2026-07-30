@@ -161,6 +161,36 @@ window.ResumeDB = {
   },
 
   /* ════════════════════════════════════════════
+     DELETE ALL  (all resumes for this user)
+  ════════════════════════════════════════════ */
+  async deleteAll() {
+    const client = window.AuthManager?._client;
+    const user   = window.AuthManager?._user;
+    if (!client || !user) return { error: 'Not logged in' };
+
+    /* Try removing all stored PDFs first */
+    try {
+      const { data: files } = await client.storage
+        .from('resume-pdfs')
+        .list(user.id);
+      if (files?.length) {
+        await client.storage
+          .from('resume-pdfs')
+          .remove(files.map(f => `${user.id}/${f.name}`));
+      }
+    } catch (e) { console.warn('[ResumeDB] Storage deleteAll cleanup failed:', e); }
+
+    const { error } = await client
+      .from('resumes')
+      .delete()
+      .eq('user_id', user.id);
+
+    if (error) { console.error('[ResumeDB] DeleteAll FAILED:', error); return { error: error.message }; }
+    console.log('[ResumeDB] All resumes deleted for', user.id);
+    return { success: true };
+  },
+
+  /* ════════════════════════════════════════════
      LOAD INTO APP  (restore state + rebuild UI)
   ════════════════════════════════════════════ */
   loadIntoApp(resumeRecord) {
