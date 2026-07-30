@@ -233,3 +233,85 @@
   .mr-panel { width: 100vw; }
   .mr-save-bar { flex-direction: column; align-items: stretch; }
 }
+
+/* ─── Tabs ─── */
+.mr-tabs {
+  display: flex; gap: 4px; padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.01); flex-shrink: 0;
+}
+.mr-tab {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 10px; font-size: 0.8rem; font-weight: 700;
+  border-radius: 10px; border: 1.5px solid transparent;
+  color: #64748b; background: transparent;
+  transition: all 0.2s; cursor: pointer; white-space: nowrap;
+}
+.mr-tab:hover:not(.active) { color: #94a3b8; background: rgba(255,255,255,0.04); }
+.mr-tab.active {
+  color: #818cf8; background: rgba(99,102,241,0.12);
+  border-color: rgba(99,102,241,0.3);
+}
+
+/* ─── Trash Count Badge on Tab ─── */
+.mr-trash-count {
+  min-width: 17px; height: 17px; padding: 0 5px;
+  background: rgba(220,38,38,0.8); color: #fff;
+  font-size: 0.62rem; font-weight: 800;
+  border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+/* ─── Main / Trash Content Panes ─── */
+#mrMainContent, #mrTrashContent {
+  flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0;
+}
+
+/* ─── Trash Bar ─── */
+.mr-trash-bar {
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: rgba(220,38,38,0.04); flex-shrink: 0;
+}
+.mr-trash-info {
+  font-size: 0.77rem; color: #94a3b8; line-height: 1.4;
+}
+.mr-trash-info strong { color: #f87171; }
+
+.mr-empty-trash-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 14px; font-size: 0.77rem; font-weight: 700;
+  color: #f87171; background: rgba(220,38,38,0.1);
+  border: 1px solid rgba(220,38,38,0.25);
+  border-radius: 8px; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
+}
+.mr-empty-trash-btn:hover {
+  background: rgba(220,38,38,0.2); border-color: rgba(220,38,38,0.5); color: #fca5a5;
+}
+
+/* ─── Trash Card ─── */
+.mr-trash-card { opacity: 0.85; }
+.mr-trash-card:hover { opacity: 1; }
+.mr-trash-title { color: #94a3b8 !important; }
+
+/* ─── Days Left Badge ─── */
+.mr-days-left {
+  font-size: 0.68rem; font-weight: 700; padding: 2px 7px;
+  border-radius: 999px; white-space: nowrap;
+  background: rgba(148,163,184,0.1); color: #64748b;
+}
+.mr-days-left.urgent {
+  background: rgba(220,38,38,0.12); color: #f87171;
+  border: 1px solid rgba(220,38,38,0.25);
+}
+
+/* ─── Restore Button ─── */
+.mr-btn-restore:hover {
+  border-color: rgba(52,211,153,0.5); color: #34d399; background: rgba(52,211,153,0.08);
+  box-shadow: 0 0 10px rgba(52,211,153,0.15);
+}
+/* ─── Permanent Delete Button ─── */
+.mr-btn-perm-delete:hover {
+  border-color: rgba(244,63,94,0.5); color: #f87171; background: rgba(244,63,94,0.1);
+}
