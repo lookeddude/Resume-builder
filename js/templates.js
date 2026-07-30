@@ -464,8 +464,27 @@ window.TemplateEngine = {
       sidebarBlocks4['education'] = `<div style="margin-bottom:20px;"><div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#60A5FA;border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:6px;margin-bottom:10px;">${this._title(state,'education','Education')}</div>${eduRows}</div>`;
     }
 
-    // Assemble sidebar in user-defined order (skills+education only; contact+photo are fixed above)
-    this._orderedKeys(state, ['skills', 'education']).forEach(k => {
+    /* Custom Sections inside dark sidebar (T4) */
+    if (state.customSections.length > 0) {
+      const customHtml = state.customSections.map(cs => {
+        const lines = (cs.content || '').split('\n').filter(l => l.trim());
+        const items = lines.map(l =>
+          `<div style="font-size:7.5pt;color:rgba(255,255,255,0.75);margin-bottom:4px;word-break:break-word;">• ${this._esc(l.replace(/^[\-\u2022]\s*/,''))}</div>`
+        ).join('');
+        return `
+          <div style="margin-bottom:20px;">
+            <div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#60A5FA;
+                        border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:6px;margin-bottom:10px;">
+              ${this._esc(cs.title)}
+            </div>
+            ${items || `<div style="font-size:7.5pt;color:rgba(255,255,255,0.5);">${this._esc(cs.content)}</div>`}
+          </div>`;
+      }).join('');
+      sidebarBlocks4['customSections'] = customHtml;
+    }
+
+    // Assemble sidebar in user-defined order (skills, education, customSections)
+    this._orderedKeys(state, ['skills', 'education', 'customSections']).forEach(k => {
       if (sidebarBlocks4[k]) sidebarParts.push(sidebarBlocks4[k]);
     });
 
@@ -508,28 +527,18 @@ window.TemplateEngine = {
       mainBlocks4['projects'] = `<div style="margin-bottom:22px;"><div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:12px;">${this._title(state,'projects','Projects')}</div>${entries}</div>`;
     }
 
-    /* Custom sections */
-    if (state.customSections.length > 0) {
-      const customHtml = state.customSections.map(cs => {
-        const lines = (cs.content || '').split('\n').filter(l => l.trim());
-        const listHtml = lines.map(l => `<div style="font-size:9.5pt;color:#475569;padding:2px 0;">- ${this._esc(l.replace(/^[\-\u2022]\s*/,''))}</div>`).join('');
-        return `<div style="margin-bottom:22px;"><div style="font-size:8pt;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#0f172a;border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:10px;">${this._esc(cs.title)}</div>${listHtml || `<p style="font-size:9.5pt;color:#94A3B8;">Add content...</p>`}</div>`;
-      }).join('');
-      mainBlocks4['customSections'] = customHtml;
-    }
-
-    // Assemble main in user-defined order
-    this._orderedKeys(state, ['experience', 'projects', 'customSections'])
+    // Assemble main in user-defined order (experience, projects)
+    this._orderedKeys(state, ['experience', 'projects'])
       .forEach(k => { if (mainBlocks4[k]) mainParts.push(mainBlocks4[k]); });
 
     return `
-      <div style="display:flex;min-height:100%;font-family:'Inter','Segoe UI',sans-serif;background:linear-gradient(to right, #1A2332 0px, #1A2332 220px, #ffffff 220px, #ffffff 100%);box-sizing:border-box;">
+      <div style="display:flex;min-height:100%;width:100%;font-family:'Inter','Segoe UI',sans-serif;background:linear-gradient(to right, #1A2332 0px, #1A2332 220px, #ffffff 220px, #ffffff 100%);box-sizing:border-box;">
         <!-- Sidebar (Full height 220px dark strip) -->
-        <div style="width:220px;flex-shrink:0;padding:30px 20px;color:rgba(255,255,255,0.8);box-sizing:border-box;word-break:break-word;position:relative;z-index:2;">
+        <div style="width:220px;flex-shrink:0;padding:32px 20px;color:rgba(255,255,255,0.8);box-sizing:border-box;word-break:break-word;position:relative;z-index:2;">
           ${sidebarParts.join('')}
         </div>
-        <!-- Main Content (Aligned strictly after sidebar with proper spacing) -->
-        <div style="flex:1;min-width:0;padding:36px 40px;background:transparent;box-sizing:border-box;word-break:break-word;position:relative;z-index:2;">
+        <!-- Main Content (Safe 45px padding from strip and right page edge) -->
+        <div style="flex:1;min-width:0;max-width:574px;padding:36px 45px 36px 45px;background:transparent;box-sizing:border-box;word-break:break-word;overflow-wrap:break-word;position:relative;z-index:2;">
           <div style="margin-bottom:18px;">
             <div style="font-size:24pt;font-weight:800;color:#0f172a;letter-spacing:-0.5px;line-height:1.1;">${this._esc(p.fullName || 'Your Name')}</div>
             ${p.jobTitle ? `<div style="font-size:11pt;color:#1D4ED8;font-weight:500;margin-top:4px;">${this._esc(p.jobTitle)}</div>` : ''}
@@ -539,3 +548,4 @@ window.TemplateEngine = {
       </div>`;
   }
 };
+
