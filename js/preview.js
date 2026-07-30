@@ -19,6 +19,7 @@ window.PreviewManager = {
   /* A4 at 96 dpi: 210mm × 297mm */
   A4_W: 794,
   A4_H: 1123,
+  MARGIN_Y: 45, /* ~12mm top & bottom margin per page */
 
   _rafId: null,
   _resizeObs: null,
@@ -63,7 +64,8 @@ window.PreviewManager = {
     const emptyState = document.getElementById('previewEmpty');
     if (!output) return;
 
-    const { A4_W, A4_H } = this;
+    const { A4_W, A4_H, MARGIN_Y } = this;
+    const printableH = A4_H - (MARGIN_Y * 2); /* 1033px printable content height per page */
 
     /* 1. Generate HTML */
     let html;
@@ -80,8 +82,8 @@ window.PreviewManager = {
     const staging = this._getStaging();
     staging.innerHTML = html;
     void staging.offsetHeight;                          /* force reflow */
-    const totalH  = Math.max(staging.scrollHeight, A4_H);
-    const numPages = Math.ceil(totalH / A4_H);
+    const totalH  = staging.scrollHeight;
+    const numPages = Math.max(1, Math.ceil(totalH / printableH));
 
     /* 3. Build page frames */
     output.innerHTML = '';
@@ -96,7 +98,7 @@ window.PreviewManager = {
     ].join(';');
 
     for (let i = 0; i < numPages; i++) {
-      /* Page frame – fixed A4 size, clips content to its slice */
+      /* Page frame – fixed A4 size */
       const page = document.createElement('div');
       page.className = 'preview-page';
       page.dataset.pageIndex = i;
@@ -111,19 +113,31 @@ window.PreviewManager = {
         'box-shadow:0 4px 24px rgba(0,0,0,0.13),0 1px 4px rgba(0,0,0,0.06)',
       ].join(';');
 
+      /* Inner clip container for printable area with top & bottom margins */
+      const clip = document.createElement('div');
+      clip.style.cssText = [
+        'position:absolute',
+        `top:${MARGIN_Y}px`,
+        'left:0',
+        `width:${A4_W}px`,
+        `height:${printableH}px`,
+        'overflow:hidden',
+      ].join(';');
+
       /* Content clone offset so only this page's slice is visible */
       const inner = document.createElement('div');
       inner.className = 'preview-page-inner';
       inner.style.cssText = [
         'position:absolute',
-        `top:${-(i * A4_H)}px`,
+        `top:${-(i * printableH)}px`,
         'left:0',
         `width:${A4_W}px`,
         'overflow:visible',
       ].join(';');
       inner.innerHTML = html;
 
-      page.appendChild(inner);
+      clip.appendChild(inner);
+      page.appendChild(clip);
       output.appendChild(page);
 
       /* Visual separator between pages */
@@ -133,6 +147,7 @@ window.PreviewManager = {
         output.appendChild(gap);
       }
     }
+
 
     /* 4. Add page count badge to wrapper */
     this._updatePageBadge(numPages);

@@ -8,6 +8,19 @@
 #resumeOutput * { box-sizing: border-box; }
 #resumeOutput { font-family: 'Inter', sans-serif; }
 
+/* ─── Multi-Page Break Prevention Rules ─── */
+.tpl1-entry, .tpl2-entry, .tpl3-entry, .tpl4-entry,
+.tpl1-section, .tpl2-section, .tpl3-section, .tpl4-section,
+.reorderable-section {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.tpl1-section-title, .tpl2-section-title, .tpl3-section-title, .tpl4-section-title {
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
 /* ===========================================================
    TEMPLATE 1 – SIMPLE (Clean B&W)
    =========================================================== */
