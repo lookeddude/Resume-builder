@@ -67,8 +67,9 @@ window.PreviewManager = {
     if (!output) return;
 
     const { A4_W, A4_H, MARGIN_BOTTOM_P1, MARGIN_TOP_P2, MARGIN_BOT_P2 } = this;
-    const h1 = A4_H - MARGIN_BOTTOM_P1;               /* 1099px content height for Page 1 */
-    const hSub = A4_H - MARGIN_TOP_P2 - MARGIN_BOT_P2; /* 1075px content height for Page 2+ */
+    const extraP1BotMargin = (state.template === 2) ? 5 : 0;
+    const h1 = A4_H - (MARGIN_BOTTOM_P1 + extraP1BotMargin); /* 5px extra bottom margin on Page 1 for Template 2 */
+    const hSub = A4_H - MARGIN_TOP_P2 - MARGIN_BOT_P2; /* 1085px content height for Page 2+ */
 
     /* 1. Generate HTML */
     let html;
