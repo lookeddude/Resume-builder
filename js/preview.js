@@ -19,7 +19,9 @@ window.PreviewManager = {
   /* A4 at 96 dpi: 210mm × 297mm */
   A4_W: 794,
   A4_H: 1123,
-  MARGIN_Y: 45, /* ~12mm top & bottom margin per page */
+  MARGIN_BOTTOM_P1: 24, /* 24px bottom margin on Page 1 */
+  MARGIN_TOP_P2: 24,    /* 24px top margin on Page 2+ */
+  MARGIN_BOT_P2: 24,    /* 24px bottom margin on Page 2+ */
 
   _rafId: null,
   _resizeObs: null,
@@ -64,8 +66,9 @@ window.PreviewManager = {
     const emptyState = document.getElementById('previewEmpty');
     if (!output) return;
 
-    const { A4_W, A4_H, MARGIN_Y } = this;
-    const printableH = A4_H - (MARGIN_Y * 2); /* 1033px printable content height per page */
+    const { A4_W, A4_H, MARGIN_BOTTOM_P1, MARGIN_TOP_P2, MARGIN_BOT_P2 } = this;
+    const h1 = A4_H - MARGIN_BOTTOM_P1;               /* 1099px content height for Page 1 */
+    const hSub = A4_H - MARGIN_TOP_P2 - MARGIN_BOT_P2; /* 1075px content height for Page 2+ */
 
     /* 1. Generate HTML */
     let html;
@@ -82,8 +85,13 @@ window.PreviewManager = {
     const staging = this._getStaging();
     staging.innerHTML = html;
     void staging.offsetHeight;                          /* force reflow */
-    const totalH  = staging.scrollHeight;
-    const numPages = Math.max(1, Math.ceil(totalH / printableH));
+    const totalH = staging.scrollHeight;
+
+    /* Calculate number of pages */
+    let numPages = 1;
+    if (totalH > h1) {
+      numPages = 1 + Math.ceil((totalH - h1) / hSub);
+    }
 
     /* 3. Build page frames */
     output.innerHTML = '';
@@ -98,7 +106,6 @@ window.PreviewManager = {
     ].join(';');
 
     for (let i = 0; i < numPages; i++) {
-      /* Page frame – fixed A4 size */
       const page = document.createElement('div');
       page.className = 'preview-page';
       page.dataset.pageIndex = i;
@@ -113,14 +120,19 @@ window.PreviewManager = {
         'box-shadow:0 4px 24px rgba(0,0,0,0.13),0 1px 4px rgba(0,0,0,0.06)',
       ].join(';');
 
-      /* Inner clip container for printable area with top & bottom margins */
+      const isFirst = i === 0;
+      const topMargin = isFirst ? 0 : MARGIN_TOP_P2;
+      const clipHeight = isFirst ? h1 : hSub;
+      const sliceOffset = isFirst ? 0 : (h1 + (i - 1) * hSub);
+
+      /* Inner clip container for printable area */
       const clip = document.createElement('div');
       clip.style.cssText = [
         'position:absolute',
-        `top:${MARGIN_Y}px`,
+        `top:${topMargin}px`,
         'left:0',
         `width:${A4_W}px`,
-        `height:${printableH}px`,
+        `height:${clipHeight}px`,
         'overflow:hidden',
       ].join(';');
 
@@ -129,7 +141,7 @@ window.PreviewManager = {
       inner.className = 'preview-page-inner';
       inner.style.cssText = [
         'position:absolute',
-        `top:${-(i * printableH)}px`,
+        `top:${-sliceOffset}px`,
         'left:0',
         `width:${A4_W}px`,
         'overflow:visible',
@@ -147,6 +159,7 @@ window.PreviewManager = {
         output.appendChild(gap);
       }
     }
+
 
 
     /* 4. Add page count badge to wrapper */
