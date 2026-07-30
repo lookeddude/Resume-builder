@@ -373,11 +373,11 @@ window.TemplateEngine = {
             ${contactItems.length > 0 ? `<div class="tpl3-contact" style="display:flex;flex-wrap:wrap;gap:5px 16px;font-size:8.5pt;color:rgba(255,255,255,0.7);">${contactItems.join('')}</div>` : ''}
           </div>
         </div>
-        <div class="tpl3-body" style="display:grid;grid-template-columns:220px 1fr;">
-          <div class="tpl3-sidebar" style="background:#F8FAFC;border-right:1px solid #E2E8F0;padding:32px 24px;">
+        <div class="tpl3-body" style="display:grid;grid-template-columns:220px 1fr;background:linear-gradient(to right, #F8FAFC 0px, #F8FAFC 220px, #ffffff 220px, #ffffff 100%);">
+          <div class="tpl3-sidebar" style="border-right:1px solid #E2E8F0;padding:32px 24px;box-sizing:border-box;word-break:break-word;">
             ${sidebarParts.join('') || '<p style="color:#94A3B8;font-size:9pt;">Add skills and education...</p>'}
           </div>
-          <div class="tpl3-main" style="padding:32px 40px;">
+          <div class="tpl3-main" style="padding:32px 40px;box-sizing:border-box;word-break:break-word;min-width:0;">
             ${mainParts.join('') || '<p style="color:#94A3B8;font-size:9pt;">Fill in your experience and summary...</p>'}
           </div>
         </div>
@@ -523,13 +523,13 @@ window.TemplateEngine = {
       .forEach(k => { if (mainBlocks4[k]) mainParts.push(mainBlocks4[k]); });
 
     return `
-      <div style="display:flex;min-height:100%;font-family:'Inter','Segoe UI',sans-serif;">
-        <!-- Sidebar -->
-        <div style="width:220px;flex-shrink:0;background:#1A2332;padding:30px 20px;color:rgba(255,255,255,0.8);">
+      <div style="display:flex;min-height:100%;font-family:'Inter','Segoe UI',sans-serif;background:linear-gradient(to right, #1A2332 0px, #1A2332 220px, #ffffff 220px, #ffffff 100%);box-sizing:border-box;">
+        <!-- Sidebar (Full height 220px dark strip) -->
+        <div style="width:220px;flex-shrink:0;padding:30px 20px;color:rgba(255,255,255,0.8);box-sizing:border-box;word-break:break-word;position:relative;z-index:2;">
           ${sidebarParts.join('')}
         </div>
-        <!-- Main -->
-        <div style="flex:1;padding:36px 40px;background:#fff;">
+        <!-- Main Content (Aligned strictly after sidebar with proper spacing) -->
+        <div style="flex:1;min-width:0;padding:36px 40px;background:transparent;box-sizing:border-box;word-break:break-word;position:relative;z-index:2;">
           <div style="margin-bottom:18px;">
             <div style="font-size:24pt;font-weight:800;color:#0f172a;letter-spacing:-0.5px;line-height:1.1;">${this._esc(p.fullName || 'Your Name')}</div>
             ${p.jobTitle ? `<div style="font-size:11pt;color:#1D4ED8;font-weight:500;margin-top:4px;">${this._esc(p.jobTitle)}</div>` : ''}
