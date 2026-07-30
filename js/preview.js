@@ -19,9 +19,9 @@ window.PreviewManager = {
   /* A4 at 96 dpi: 210mm × 297mm */
   A4_W: 794,
   A4_H: 1123,
-  MARGIN_BOTTOM_P1: 24, /* 24px bottom margin on Page 1 */
-  MARGIN_TOP_P2: 24,    /* 24px top margin on Page 2+ */
-  MARGIN_BOT_P2: 24,    /* 24px bottom margin on Page 2+ */
+  MARGIN_BOTTOM_P1: 19, /* ~5mm ideal bottom margin on Page 1 */
+  MARGIN_TOP_P2: 19,    /* ~5mm ideal top margin on Page 2+ */
+  MARGIN_BOT_P2: 19,    /* ~5mm ideal bottom margin on Page 2+ */
 
   _rafId: null,
   _resizeObs: null,

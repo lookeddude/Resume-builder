@@ -140,17 +140,17 @@ window.PDFManager = {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,400;1,700&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet"/>
   <style>
-    /* ── Page Setup: 0mm side margins (strip touches edge), Page 1 top 0mm, Page 1 bot + Page 2+ top/bot 6.3mm ── */
+    /* ── Page Setup: 0mm side margins (strip touches edge), Page 1 top 0mm, Page 1 bot + Page 2+ top/bot 5mm (ideal ~19px) ── */
     @page {
       size: A4 portrait;
-      margin-top: 6.3mm;
-      margin-bottom: 6.3mm;
+      margin-top: 5mm;
+      margin-bottom: 5mm;
       margin-left: 0mm !important;
       margin-right: 0mm !important;
     }
     @page :first {
       margin-top: 0mm !important;
-      margin-bottom: 6.3mm !important;
+      margin-bottom: 5mm !important;
       margin-left: 0mm !important;
       margin-right: 0mm !important;
     }
