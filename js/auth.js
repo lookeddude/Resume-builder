@@ -601,33 +601,25 @@ window.AuthManager = {
               font-size:14px;font-weight:700;cursor:pointer;">Update Password</button>
           </div>
 
-          <!-- ── Tab 2: OTP verify ── -->
+          <!-- ── Tab 2: Reset via Email Link ── -->
           <div id="cpSectionOtp" style="display:none;">
-            <!-- Step 1: send OTP -->
+            <!-- Step 1: send link -->
             <div id="cpOtpStep1">
-              <div style="font-size:13px;color:#64748b;margin-bottom:14px;text-align:center;">
-                We'll send a 6-digit OTP to your registered email address.
+              <div style="text-align:center;margin-bottom:18px;">
+                <div style="font-size:2rem;margin-bottom:6px;">🔑</div>
+                <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:6px;">Reset via Email Link</div>
+                <div style="font-size:13px;color:#64748b;line-height:1.6;">
+                  We'll send a <strong>secure password reset link</strong> to<br>
+                  <strong id="cpResetEmailDisplay" style="color:#6366f1;"></strong>
+                </div>
               </div>
               <button id="cpSendOtp" style="
                 width:100%;padding:13px;border:none;border-radius:12px;
                 background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;
-                font-size:14px;font-weight:700;cursor:pointer;">Send OTP to Email</button>
+                font-size:14px;font-weight:700;cursor:pointer;">Send Reset Link</button>
             </div>
-            <!-- Step 2: verify OTP + new password -->
+            <!-- Step 2: sent confirmation -->
             <div id="cpOtpStep2" style="display:none;">
-              <div id="cpOtpInfo" style="
-                background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;
-                border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:14px;">
-                ✉️ OTP sent! Check your inbox.
-              </div>
-              <div style="margin-bottom:14px;">
-                <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">Enter OTP Code</label>
-                <input id="cpOtpCode" type="text" placeholder="6-digit code" maxlength="6" inputmode="numeric"
-                  style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;
-                         font-size:18px;letter-spacing:4px;text-align:center;outline:none;box-sizing:border-box;"/>
-              </div>
-              <div style="margin-bottom:14px;">
-                <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">New Password</label>
                 <input id="cpOtpNewPw" type="password" placeholder="Min. 8 characters"
                   style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;
                          font-size:14px;outline:none;box-sizing:border-box;"/>
@@ -657,13 +649,16 @@ window.AuthManager = {
   _openChangePwModal() {
     this._injectChangePwModal();
     /* Reset to default state */
-    const ids = ['cpCurrentPw','cpNewPw','cpConfirmPw','cpOtpCode','cpOtpNewPw','cpOtpConfirmPw'];
+    const ids = ['cpCurrentPw','cpNewPw','cpConfirmPw'];
     ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     document.getElementById('changePwError').style.display = 'none';
     document.getElementById('cpSectionPw').style.display   = 'block';
     document.getElementById('cpSectionOtp').style.display  = 'none';
     document.getElementById('cpOtpStep1').style.display    = 'block';
     document.getElementById('cpOtpStep2').style.display    = 'none';
+    /* Show user's email in the reset link tab */
+    const emailDisplay = document.getElementById('cpResetEmailDisplay');
+    if (emailDisplay) emailDisplay.textContent = this._user?.email || '';
     this._cpSetTab('pw');
     document.getElementById('changePwBackdrop').style.display = 'flex';
   },
@@ -745,7 +740,7 @@ window.AuthManager = {
       }
     });
 
-    /* ── Tab 2: Send OTP ── */
+    /* ── Tab 2: Send password reset link ── */
     document.getElementById('cpSendOtp').addEventListener('click', async () => {
       const btn = document.getElementById('cpSendOtp');
       btn.disabled = true; btn.textContent = 'Sending…';
@@ -753,58 +748,30 @@ window.AuthManager = {
       try {
         const email = this._user?.email;
         if (!email) throw new Error('No email found for this account.');
-        /* emailRedirectTo: null forces Supabase to send a 6-digit OTP code
-           instead of a magic sign-in link */
-        const { error } = await this._client.auth.signInWithOtp({
-          email,
-          options: { shouldCreateUser: false, emailRedirectTo: null }
+        /* Use resetPasswordForEmail — Supabase sends a proper reset link.
+           On click the app detects type=recovery in the URL and shows the
+           Set New Password form automatically via _handleAuthCallback. */
+        const { error } = await this._client.auth.resetPasswordForEmail(email, {
+          redirectTo: `${this.SITE_URL}?reset=true`,
         });
         if (error) throw error;
+        /* Show the sent email in the confirmation step */
+        const sentEl = document.getElementById('cpOtpSentEmail');
+        if (sentEl) sentEl.textContent = email;
         document.getElementById('cpOtpStep1').style.display = 'none';
         document.getElementById('cpOtpStep2').style.display = 'block';
       } catch (err) {
-        this._cpShowError(err.message || 'Failed to send OTP.');
-        btn.disabled = false; btn.textContent = 'Send OTP to Email';
+        this._cpShowError(err.message || 'Failed to send reset link.');
+        btn.disabled = false; btn.textContent = 'Send Reset Link';
       }
     });
 
-    /* Resend OTP */
+    /* Resend — go back to step 1 */
     document.getElementById('cpResendOtp').addEventListener('click', () => {
       document.getElementById('cpOtpStep1').style.display = 'block';
       document.getElementById('cpOtpStep2').style.display = 'none';
-      document.getElementById('cpOtpCode').value = '';
-    });
-
-    /* ── Tab 2: Verify OTP + Update password ── */
-    document.getElementById('cpSubmitOtp').addEventListener('click', async () => {
-      const otp       = document.getElementById('cpOtpCode').value.trim();
-      const newPw     = document.getElementById('cpOtpNewPw').value;
-      const confirmPw = document.getElementById('cpOtpConfirmPw').value;
-      const btn       = document.getElementById('cpSubmitOtp');
-
-      document.getElementById('changePwError').style.display = 'none';
-      if (otp.length < 6) return this._cpShowError('Please enter the 6-digit OTP code.');
-      const pwErr = this._validatePasswordStrength(newPw);
-      if (pwErr) return this._cpShowError(pwErr);
-      if (newPw !== confirmPw) return this._cpShowError('Passwords do not match.');
-
-      btn.disabled = true; btn.textContent = 'Verifying…';
-      try {
-        const email = this._user?.email;
-        /* Verify the 6-digit OTP — type: 'email' matches the OTP sent by signInWithOtp */
-        const { error: otpErr } = await this._client.auth.verifyOtp({ email, token: otp, type: 'email' });
-        if (otpErr) throw new Error('Invalid or expired OTP code. Please try again.');
-
-        /* Update password in Supabase */
-        const { error } = await this._client.auth.updateUser({ password: newPw });
-        if (error) throw error;
-
-        document.getElementById('changePwBackdrop').style.display = 'none';
-        this._cpShowSuccess('Password updated successfully!');
-      } catch (err) {
-        this._cpShowError(err.message || 'Failed to update password.');
-        btn.disabled = false; btn.textContent = 'Verify & Update Password';
-      }
+      const btn = document.getElementById('cpSendOtp');
+      btn.disabled = false; btn.textContent = 'Send Reset Link';
     });
   },
 
