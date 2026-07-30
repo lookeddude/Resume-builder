@@ -322,6 +322,16 @@ window.ResumeApp = {
 
     // Rebuild form UI + preview
     window.FormManager.populateForm();
+
+    // Ensure template card is visually selected and visibility (photo section etc.) is correct
+    const tplInput = document.querySelector(`input[name="template"][value="${this.state.template}"]`);
+    if (tplInput) {
+      tplInput.checked = true;
+      document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
+      tplInput.closest('.template-card')?.classList.add('active');
+      this._handleTemplateVisibility();
+    }
+
     this.schedulePreview();
     this.showToast('✨ Sample data loaded!', 'success');
   },
