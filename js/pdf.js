@@ -140,10 +140,10 @@ window.PDFManager = {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,400;1,700&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet"/>
   <style>
-    /* ── Page Setup: Force A4, zero margins ── */
+    /* ── Page Setup: Force A4 portrait, zero margins ── */
     @page {
-      size: 210mm 297mm;     /* explicit A4 dimensions — Chrome honours this */
-      margin: 0mm 0mm 0mm 0mm;
+      size: A4 portrait;
+      margin: 0 !important;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -256,10 +256,6 @@ window.PDFManager = {
 
     /* ── PRINT MODE: Force A4, zero margins, no decorations ── */
     @media print {
-      @page {
-        size: 210mm 297mm;
-        margin: 0 !important;
-      }
       html, body {
         width: 210mm !important;
         height: 297mm !important;
@@ -273,6 +269,7 @@ window.PDFManager = {
       .resume-page-wrap  { width: 210mm !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; }
       #resumeOutput      { width: 210mm !important; }
     }
+
 
     /* ── Template Styles (inlined from templates.css) ── */
     ${templatesCss}
