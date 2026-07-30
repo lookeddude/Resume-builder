@@ -86,9 +86,9 @@ window.AuthManager = {
     const hash   = window.location.hash;
     const params = new URLSearchParams(window.location.search);
 
-    /* ── Password Recovery / Change Password redirect (type=recovery or change_password=true) ── */
+    /* ── Password Recovery redirect (type=recovery in hash) ── */
     const hashParams = new URLSearchParams(hash.replace(/^#/, ''));
-    if (hashParams.get('type') === 'recovery' || params.get('change_password') === 'true' || params.get('reset') === 'true') {
+    if (hashParams.get('type') === 'recovery') {
       await new Promise(r => setTimeout(r, 600)); /* Let Supabase exchange the token */
       const { data: { session } } = await this._client.auth.getSession();
       if (session?.user) {
@@ -605,21 +605,20 @@ window.AuthManager = {
           <div id="cpSectionOtp" style="display:none;">
             <!-- Step 1: send OTP -->
             <div id="cpOtpStep1">
-              <div style="font-size:13px;color:#64748b;margin-bottom:14px;text-align:center;line-height:1.5;">
-                We'll send a verification OTP code & direct link to your email address.
+              <div style="font-size:13px;color:#64748b;margin-bottom:14px;text-align:center;">
+                We'll send a 6-digit OTP to your registered email address.
               </div>
               <button id="cpSendOtp" style="
                 width:100%;padding:13px;border:none;border-radius:12px;
                 background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;
-                font-size:14px;font-weight:700;cursor:pointer;">Send Verification Email / OTP</button>
+                font-size:14px;font-weight:700;cursor:pointer;">Send OTP to Email</button>
             </div>
             <!-- Step 2: verify OTP + new password -->
             <div id="cpOtpStep2" style="display:none;">
               <div id="cpOtpInfo" style="
                 background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;
-                border-radius:10px;padding:10px 14px;font-size:12.5px;margin-bottom:14px;line-height:1.5;">
-                ✉️ Email sent! Check your inbox.<br>
-                <span style="font-size:11.5px;color:#15803d;">Enter the 6-digit code below <strong>OR</strong> click the link in your email to update password.</span>
+                border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:14px;">
+                ✉️ OTP sent! Check your inbox.
               </div>
               <div style="margin-bottom:14px;">
                 <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">Enter OTP Code</label>
@@ -649,7 +648,6 @@ window.AuthManager = {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     `);
@@ -755,25 +753,18 @@ window.AuthManager = {
       try {
         const email = this._user?.email;
         if (!email) throw new Error('No email found for this account.');
-
-        /* Send password recovery email (contains 6-digit OTP token + direct reset link) */
-        const { error } = await this._client.auth.resetPasswordForEmail(email, {
-          redirectTo: `${this.SITE_URL}?change_password=true`,
+        /* emailRedirectTo: null forces Supabase to send a 6-digit OTP code
+           instead of a magic sign-in link */
+        const { error } = await this._client.auth.signInWithOtp({
+          email,
+          options: { shouldCreateUser: false, emailRedirectTo: null }
         });
-        if (error) {
-          /* Fallback to signInWithOtp if resetPasswordForEmail returns an error */
-          const { error: otpErr } = await this._client.auth.signInWithOtp({
-            email,
-            options: { shouldCreateUser: false, emailRedirectTo: `${this.SITE_URL}?change_password=true` }
-          });
-          if (otpErr) throw otpErr;
-        }
-
+        if (error) throw error;
         document.getElementById('cpOtpStep1').style.display = 'none';
         document.getElementById('cpOtpStep2').style.display = 'block';
       } catch (err) {
-        this._cpShowError(err.message || 'Failed to send verification email.');
-        btn.disabled = false; btn.textContent = 'Send Verification Email / OTP';
+        this._cpShowError(err.message || 'Failed to send OTP.');
+        btn.disabled = false; btn.textContent = 'Send OTP to Email';
       }
     });
 
@@ -800,13 +791,9 @@ window.AuthManager = {
       btn.disabled = true; btn.textContent = 'Verifying…';
       try {
         const email = this._user?.email;
-
-        /* Try verifying as recovery type first, then fallback to email type */
-        let verifyRes = await this._client.auth.verifyOtp({ email, token: otp, type: 'recovery' });
-        if (verifyRes.error) {
-          verifyRes = await this._client.auth.verifyOtp({ email, token: otp, type: 'email' });
-        }
-        if (verifyRes.error) throw new Error('Invalid or expired OTP code. Please check your email or request a new code.');
+        /* Verify the 6-digit OTP — type: 'email' matches the OTP sent by signInWithOtp */
+        const { error: otpErr } = await this._client.auth.verifyOtp({ email, token: otp, type: 'email' });
+        if (otpErr) throw new Error('Invalid or expired OTP code. Please try again.');
 
         /* Update password in Supabase */
         const { error } = await this._client.auth.updateUser({ password: newPw });
@@ -819,7 +806,6 @@ window.AuthManager = {
         btn.disabled = false; btn.textContent = 'Verify & Update Password';
       }
     });
-
   },
 
   /* ════════════════════════════════════════════
