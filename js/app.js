@@ -217,203 +217,108 @@ window.ResumeApp = {
 
   // ─── Load Sample Data ───
   loadSampleData() {
-    const t  = this.state.template; // 1 | 2 | 3 | 4
+    const isPremium = this.state.template === 4;
     const fm = window.FormManager;
 
-    /* ══════════════════════════════════════════════════════════
-       TEMPLATE 1 – SIMPLE (single column, fits ~3 exp entries)
-    ══════════════════════════════════════════════════════════ */
-    if (t === 1) {
-      this.state.personal = {
-        fullName: 'Marcus Webb', jobTitle: 'Full-Stack Software Engineer',
-        email: 'marcus.webb@dev.io', phone: '555 012 3456', phoneCode: '+1',
-        address: 'Austin, TX', linkedin: 'https://linkedin.com/in/marcuswebb',
-        summary: 'Results-driven Full-Stack Engineer with 5+ years building high-performance web apps. Skilled in React, Node.js, and cloud-native architectures. Passionate about clean code, developer experience, and delivering products at scale.'
-      };
-      this.state.skills = [
-        'JavaScript', 'TypeScript', 'React', 'Vue.js', 'Node.js', 'Express',
-        'Python', 'PostgreSQL', 'MongoDB', 'Redis', 'Docker', 'AWS', 'Git', 'CI/CD'
-      ];
-      this.state.education = [
-        { _id: 1, degree: 'B.Sc. Computer Science', school: 'University of Texas at Austin',
-          field: 'Computer Science', period: '2015 – 2019', gpaType: 'GPA', gpa: '3.78 / 4.0',
-          description: "Dean's List every semester. Focus on Distributed Systems and Algorithms." },
-        { _id: 2, degree: 'AWS Solutions Architect – Associate', school: 'Amazon Web Services',
-          field: 'Cloud Computing', period: 'Apr 2022', gpaType: '', gpa: '',
-          description: 'Certified in cloud architecture, security, and cost optimization best practices.' }
-      ];
-      fm._counters.education = 2;
-      this.state.experience = [
-        { _id: 1, position: 'Senior Full-Stack Engineer', company: 'Nexus Digital',
-          location: 'Austin, TX', period: 'Mar 2022 – Present',
-          description: '• Re-architected the monolith to microservices, cutting deployment time by 65%\n• Led a 4-engineer team delivering two major product releases on schedule\n• Implemented GraphQL API reducing client over-fetching by 40%' },
-        { _id: 2, position: 'Full-Stack Developer', company: 'Bright Labs',
-          location: 'Remote', period: 'Jun 2020 – Feb 2022',
-          description: '• Built real-time collaboration features using WebSockets for 30K+ active users\n• Migrated CI/CD pipelines to GitHub Actions, reducing build time from 18 to 5 minutes\n• Developed reusable React component library adopted by 3 product teams' },
-        { _id: 3, position: 'Frontend Developer', company: 'Pixel Works',
-          location: 'Dallas, TX', period: 'Aug 2019 – May 2020',
-          description: '• Delivered 8 client websites using React and Tailwind CSS within budget\n• Integrated Stripe payment gateway and reduced checkout abandonment by 22%' }
-      ];
-      fm._counters.experience = 3;
-      this.state.projects = [
-        { _id: 1, name: 'TaskFlow – Project Management SaaS', tech: 'Next.js, Node.js, PostgreSQL, Redis',
-          link: 'https://github.com/marcuswebb/taskflow', period: '2023',
-          description: '• Kanban-style task manager with real-time updates via WebSockets\n• 400+ GitHub stars; deployed on Vercel with 99.9% uptime\n• Supports team workspaces, role-based access, and audit logging' },
-        { _id: 2, name: 'PriceBot – AI Price Tracker', tech: 'Python, FastAPI, TensorFlow, Docker',
-          link: '', period: '2022',
-          description: '• LSTM-powered price prediction with 91% accuracy on e-commerce datasets\n• REST API serving 15K requests/day with < 80ms avg. response time' },
-        { _id: 3, name: 'CodeReview CLI', tech: 'Node.js, OpenAI API, Git',
-          link: 'https://github.com/marcuswebb/cr-cli', period: '2021',
-          description: '• CLI tool that posts AI-generated code review comments on GitHub PRs\n• 250+ installs via npm within first month of release' }
-      ];
-      fm._counters.projects = 3;
-      this.state.customSections = [];
-      fm._counters.custom = 0;
-    }
+    // ── Personal ──
+    this.state.personal = isPremium ? {
+      fullName: 'Rajnish Kumar', jobTitle: 'Lead Software Architect',
+      email: 'rajnish.kumar@email.dev', phone: '98765 43210', phoneCode: '+91',
+      address: 'Mumbai, Maharashtra, India',
+      linkedin: 'https://linkedin.com/in/rajnish-kumar',
+      summary: 'Forward-thinking Software Architect with 8+ years of experience designing and executing enterprise web architectures. Proven expertise in React, Node.js, Cloud Services, and building scalable SaaS applications. Committed to clean code, performance optimization, and mentoring cross-functional engineering teams.'
+    } : {
+      fullName: 'Alexandra Chen', jobTitle: 'Senior Full-Stack Engineer',
+      email: 'alex.chen@email.com', phone: '(415) 867-5309', phoneCode: '+1',
+      address: 'San Francisco, CA',
+      linkedin: 'https://linkedin.com/in/alexchen-dev',
+      summary: 'Passionate full-stack engineer with 6+ years of experience building scalable web applications and distributed systems. Led cross-functional teams to ship products used by millions of users. Strong expertise in React, Node.js, and cloud infrastructure.'
+    };
 
-    /* ══════════════════════════════════════════════════════════
-       TEMPLATE 2 – MODERN (left: skills+edu | right: sum+exp+proj)
-       Balanced: 2 exp, 2 edu, 2 projects, 10 skills
-    ══════════════════════════════════════════════════════════ */
-    else if (t === 2) {
-      this.state.personal = {
-        fullName: 'Sofia Reyes', jobTitle: 'Product Designer & Frontend Engineer',
-        email: 'sofia.reyes@design.co', phone: '789 654 3210', phoneCode: '+44',
-        address: 'London, UK', linkedin: 'https://linkedin.com/in/sofiareyes',
-        summary: 'Creative technologist blending UX design with frontend engineering. 4+ years turning complex problems into elegant, accessible interfaces. Expert in Figma-to-code workflows, design systems, and React-based front ends.'
-      };
-      this.state.skills = [
-        'React', 'TypeScript', 'Figma', 'CSS / Tailwind', 'Next.js',
-        'Node.js', 'Storybook', 'Accessibility (WCAG)', 'Jest', 'GraphQL'
-      ];
-      this.state.education = [
-        { _id: 1, degree: 'B.A. Human-Computer Interaction', school: 'University College London',
-          field: 'HCI & Design', period: '2016 – 2020', gpaType: 'Grade', gpa: 'First Class',
-          description: 'Thesis on adaptive UI patterns for low-vision users.' },
-        { _id: 2, degree: 'Google UX Design Certificate', school: 'Coursera / Google',
-          field: 'UX Design', period: 'Jan 2021', gpaType: '', gpa: '',
-          description: 'End-to-end UX process: empathise, define, ideate, prototype, test.' }
-      ];
-      fm._counters.education = 2;
-      this.state.experience = [
-        { _id: 1, position: 'Senior Frontend Engineer', company: 'Studio Arc',
-          location: 'London', period: 'Feb 2022 – Present',
-          description: '• Built and shipped a design system used across 6 products (200+ components)\n• Improved Lighthouse accessibility score from 68 to 97 app-wide\n• Mentored 3 junior engineers in component-driven development' },
-        { _id: 2, position: 'UI/UX Developer', company: 'Luminary Labs',
-          location: 'Remote', period: 'Sep 2020 – Jan 2022',
-          description: '• Prototyped and shipped 4 new product features with Figma + React\n• Reduced user-reported UI bugs by 45% through systematic design-token adoption\n• Ran usability testing sessions with 40+ participants' }
-      ];
-      fm._counters.experience = 2;
-      this.state.projects = [
-        { _id: 1, name: 'Palette UI – Design System', tech: 'React, TypeScript, Storybook, Chromatic',
-          link: 'https://github.com/sofiareyes/palette-ui', period: '2023',
-          description: '• Open-source design system; 180+ GitHub stars\n• Automated visual regression tests via Chromatic CI' },
-        { _id: 2, name: 'AccessMap – WCAG Audit Tool', tech: 'Next.js, Puppeteer, Node.js',
-          link: '', period: '2022',
-          description: '• Crawls websites and generates downloadable WCAG 2.1 compliance reports\n• Used by 3 NGOs to improve digital accessibility' }
-      ];
-      fm._counters.projects = 2;
-      this.state.customSections = [
-        { _id: 1, title: 'Tools & Software',
-          content: 'Figma · Adobe XD · Zeplin · Notion · Linear · GitHub · Vercel' }
-      ];
-      fm._counters.custom = 1;
-    }
+    // ── Skills ──
+    this.state.skills = isPremium ? [
+      'JavaScript (ES6+)', 'TypeScript', 'Go', 'Python', 'SQL', 'HTML/CSS',
+      'React', 'Node.js', 'Express', 'Next.js', 'Redux Toolkit', 'TailwindCSS',
+      'Git', 'Docker', 'AWS (S3/EC2)', 'PostgreSQL', 'MongoDB', 'Redis', 'GraphQL'
+    ] : [
+      'JavaScript', 'TypeScript', 'React', 'Node.js',
+      'Python', 'PostgreSQL', 'MongoDB', 'GraphQL',
+      'Docker', 'Kubernetes', 'AWS', 'CI/CD', 'Git'
+    ];
 
-    /* ══════════════════════════════════════════════════════════
-       TEMPLATE 3 – PROFESSIONAL (sidebar: skills+edu | main: sum+exp+proj)
-       Narrow sidebar – keep skills ≤ 8, edu = 1, main has 2 exp + 2 proj
-    ══════════════════════════════════════════════════════════ */
-    else if (t === 3) {
-      this.state.personal = {
-        fullName: 'Daniel Osei', jobTitle: 'Data Engineer & ML Practitioner',
-        email: 'd.osei@dataworks.ai', phone: '711 999 8800', phoneCode: '+49',
-        address: 'Berlin, Germany', linkedin: 'https://linkedin.com/in/danielosei',
-        summary: 'Analytical Data Engineer with 5 years designing robust data pipelines and ML systems. Translates raw data into actionable intelligence. Strong background in Python, Spark, and cloud data warehousing on GCP and AWS.'
-      };
-      this.state.skills = [
-        'Python', 'Apache Spark', 'SQL', 'dbt', 'BigQuery', 'Airflow', 'Kafka', 'Docker'
-      ];
-      this.state.education = [
-        { _id: 1, degree: 'M.Sc. Data Science', school: 'Technical University of Berlin',
-          field: 'Machine Learning & Data Engineering', period: '2018 – 2020', gpaType: 'Grade', gpa: '1.2 (Sehr Gut)',
-          description: 'Thesis: Real-time anomaly detection in distributed event streams.' }
-      ];
-      fm._counters.education = 1;
-      this.state.experience = [
-        { _id: 1, position: 'Senior Data Engineer', company: 'Aleph Analytics',
-          location: 'Berlin', period: 'Apr 2021 – Present',
-          description: '• Designed ELT pipelines processing 500GB/day using Spark & BigQuery\n• Reduced pipeline execution time by 55% through intelligent partitioning\n• Built real-time dashboards monitoring 20+ KPIs for C-level stakeholders' },
-        { _id: 2, position: 'Data Engineer', company: 'Stream Insights GmbH',
-          location: 'Munich', period: 'Jul 2020 – Mar 2021',
-          description: '• Implemented Kafka-based event streaming for 1M+ events/hour\n• Automated data quality checks reducing incidents by 70%\n• Migrated on-premise DWH to Google BigQuery, saving €80K/year' }
-      ];
-      fm._counters.experience = 2;
-      this.state.projects = [
-        { _id: 1, name: 'StreamGuard – Anomaly Detection Engine',
-          tech: 'Python, Kafka, Redis, Docker', link: '', period: '2023',
-          description: '• Detects statistical anomalies in event streams with 97% precision\n• Open-sourced on GitHub with 320+ stars' },
-        { _id: 2, name: 'DataLens – BI Dashboard Builder',
-          tech: 'Next.js, FastAPI, BigQuery, Recharts', link: '', period: '2022',
-          description: '• Drag-and-drop BI tool generating auto-refresh charts from SQL queries\n• Deployed for a 50-person analytics team' }
-      ];
-      fm._counters.projects = 2;
-      this.state.customSections = [
-        { _id: 1, title: 'Certifications',
-          content: 'Google Professional Data Engineer\nDatabricks Certified Associate Developer\nApache Kafka Confluent Certified' }
-      ];
-      fm._counters.custom = 1;
-    }
+    // ── Education ──
+    this.state.education = isPremium ? [
+      { _id: 1, degree: 'B.Tech in Computer Science & Engineering',
+        school: 'Indian Institute of Technology (IIT)', field: 'Computer Science & Engineering',
+        period: '2016-07 – 2020-05', gpaType: 'CGPA', gpa: '8.9/10',
+        description: 'Specialized in Algorithms, Distributed Systems, and Advanced Database Systems. Graduated with Honors.' }
+    ] : [
+      { _id: 1, degree: 'B.Sc. Computer Science',
+        school: 'University of California, Berkeley', field: 'Computer Science & Engineering',
+        period: '2014 – 2018', gpaType: 'GPA', gpa: '3.85 / 4.0',
+        description: 'Dean\'s List — 4 consecutive years' },
+      { _id: 2, degree: 'AWS Certified Solutions Architect',
+        school: 'Amazon Web Services', field: 'Cloud Computing',
+        period: 'Mar 2021', gpaType: '', gpa: '',
+        description: 'Professional-level certification covering cloud architecture, security, and cost optimization.' }
+    ];
+    fm._counters.education = this.state.education.length;
 
-    /* ══════════════════════════════════════════════════════════
-       TEMPLATE 4 – PREMIUM (dark sidebar: photo+skills+edu | main: sum+exp+proj+custom)
-       Rich sidebar: 10 skills, 1 edu | Main: 2 exp, 2 proj, 2 custom
-    ══════════════════════════════════════════════════════════ */
-    else {
-      this.state.personal = {
-        fullName: 'Rajnish Kumar', jobTitle: 'Lead Software Architect',
-        email: 'rajnish.kumar@email.dev', phone: '98765 43210', phoneCode: '+91',
-        address: 'Mumbai, Maharashtra, India', linkedin: 'https://linkedin.com/in/rajnish-kumar',
-        summary: 'Forward-thinking Software Architect with 8+ years designing scalable SaaS platforms. Expert in cloud-native architectures, React/Node.js ecosystems, and engineering leadership. Passionate about building high-performance teams and products that reach millions of users.'
-      };
-      this.state.skills = [
-        'JavaScript (ES6+)', 'TypeScript', 'Go', 'Python', 'SQL',
-        'React', 'Node.js', 'Next.js', 'Docker', 'AWS (EC2/S3/Lambda)',
-        'PostgreSQL', 'Redis', 'GraphQL', 'Terraform'
-      ];
-      this.state.education = [
-        { _id: 1, degree: 'B.Tech – Computer Science & Engineering',
-          school: 'Indian Institute of Technology (IIT Bombay)',
-          field: 'CS & Engineering', period: '2012 – 2016', gpaType: 'CGPA', gpa: '9.1 / 10',
-          description: 'Graduated with Distinction. Specialised in Algorithms and Distributed Systems.' }
-      ];
-      fm._counters.education = 1;
-      this.state.experience = [
-        { _id: 1, position: 'Lead Software Architect', company: 'Tech Solutions Inc.',
-          location: 'Mumbai', period: '2021 – Present',
-          description: '- Designed cloud-native microservices platform serving 10M+ DAU with 99.99% SLA\n- Led 12-engineer team across 3 squads using SAFe agile methodology\n- Reduced infrastructure spend by ₹2.4Cr/year via right-sizing and auto-scaling strategies' },
-        { _id: 2, position: 'Senior Full Stack Developer', company: 'Innovate Hub',
-          location: 'Bengaluru', period: '2018 – 2021',
-          description: '- Architected multi-tenant SaaS billing engine processing ₹50Cr+ in transactions\n- Delivered 6 major product releases with zero critical post-release defects\n- Mentored 5 junior engineers; 3 promoted within 18 months' }
-      ];
-      fm._counters.experience = 2;
-      this.state.projects = [
-        { _id: 1, name: 'CollabDoc – Realtime Editor', tech: 'React, Socket.io, Node.js, Redis',
-          link: '', period: '2023',
-          description: 'Google-Docs-style collaborative editor using Operational Transformation; 1,500+ GitHub stars.' },
-        { _id: 2, name: 'SafePay Gateway Engine', tech: 'Golang, PostgreSQL, Docker, AWS',
-          link: '', period: '2022',
-          description: 'High-throughput payment router with retry queuing and PCI-DSS compliance; handles 5K TPS.' }
-      ];
-      fm._counters.projects = 2;
-      this.state.customSections = [
-        { _id: 1, title: 'Certifications',
-          content: 'AWS Certified Solutions Architect – Professional (2022)\nScrum Alliance Certified ScrumMaster (CSM)\nStanford Advanced Data Structures (2021)' },
-        { _id: 2, title: 'Languages',
-          content: 'English (Fluent)  ·  Hindi (Native)  ·  Marathi (Native)' }
-      ];
-      fm._counters.custom = 2;
-    }
+    // ── Experience ──
+    this.state.experience = isPremium ? [
+      { _id: 1, position: 'Lead Software Engineer', company: 'Tech Solutions Inc.',
+        location: 'Mumbai', period: '2023-01 – Present',
+        description: '- Architected a cloud-native real-time analytics platform serving 10M+ daily active users, improving scalability by 40%.\n- Led a team of 8 engineers using agile methodologies to ship product features ahead of deadlines.\n- Optimized webpack configs and code-splitting, slashing initial bundle load times by 2.5 seconds.' },
+      { _id: 2, position: 'Senior Full Stack Developer', company: 'Innovate Hub',
+        location: 'Bengaluru', period: '2020-05 – 2022-12',
+        description: '- Migrated legacy monolith systems to highly modular microservices using Docker and AWS ECS.\n- Authored re-usable component libraries with styled-components, reducing UI design-to-dev handoff times by 30%.\n- Integrated multiple secure payment gateways, processing $5M+ in online transactions.' }
+    ] : [
+      { _id: 1, position: 'Senior Full-Stack Engineer', company: 'TechVision Inc.',
+        location: 'San Francisco, CA', period: 'Jan 2022 – Present',
+        description: '• Led a team of 5 engineers to redesign the core platform, reducing page load times by 60%\n• Architected microservices migration from a monolith, improving deployment frequency by 4×\n• Introduced GraphQL API layer, reducing over-fetching and cutting bandwidth costs by 35%' },
+      { _id: 2, position: 'Full-Stack Developer', company: 'DataFlow Labs',
+        location: 'Remote', period: 'Jun 2020 – Dec 2021',
+        description: '• Built real-time analytics dashboard processing 2M+ events/day using React and Apache Kafka\n• Designed REST APIs serving 50K+ daily active users\n• Reduced infrastructure costs by 28% through strategic AWS resource optimization' },
+      { _id: 3, position: 'Frontend Developer', company: 'Pixel Studios',
+        location: 'New York, NY', period: 'Aug 2018 – May 2020',
+        description: '• Developed responsive UI components in React used across 12 client projects\n• Integrated third-party APIs (Stripe, Twilio, Mapbox) into production applications\n• Improved test coverage from 40% to 92% using Jest and React Testing Library' }
+    ];
+    fm._counters.experience = this.state.experience.length;
+
+    // ── Projects ──
+    this.state.projects = isPremium ? [
+      { _id: 1, name: 'CollabDoc – Realtime Collaborative Editor',
+        tech: 'React, Socket.io, Node.js, Redis', link: '', period: '2023',
+        description: 'A Google-docs style collaborative text editor using operational transformation algorithms for operational consistency and real-time syncing across users.' },
+      { _id: 2, name: 'SafePay Gateway Engine',
+        tech: 'Golang, PostgreSQL, Docker, AWS', link: '', period: '2022',
+        description: 'A robust, high-throughput payment transaction router handling parallel request queuing, retry mechanisms, and PCI-DSS compliance audits.' }
+    ] : [
+      { _id: 1, name: 'OpenFlow – Workflow Automation',
+        tech: 'React, Node.js, PostgreSQL, Docker', link: 'https://github.com/alexchen/openflow', period: '2023',
+        description: '• Open-source no-code workflow builder with 1,200+ GitHub stars\n• Supports 30+ integrations including Slack, GitHub, and Notion\n• Handles 500K+ workflow runs per month on AWS ECS' },
+      { _id: 2, name: 'ML Price Predictor',
+        tech: 'Python, FastAPI, TensorFlow, Redis', link: '', period: '2022',
+        description: '• Real-time price prediction service using LSTM neural networks\n• Achieves 94.2% accuracy on historical test data\n• Predictions served with <50ms latency via Redis caching' },
+      { _id: 3, name: 'DevPulse – Developer Analytics',
+        tech: 'Next.js, GraphQL, MongoDB, Vercel', link: 'https://devpulse.app', period: '2021',
+        description: '• SaaS dashboard aggregating GitHub, Jira, and GitLab metrics\n• Acquired 800+ paying customers within 6 months of launch\n• Featured in Product Hunt Top 10 of the day' }
+    ];
+    fm._counters.projects = this.state.projects.length;
+
+    // ── Custom Sections ──
+    this.state.customSections = isPremium ? [
+      { _id: 1, title: 'Certifications',
+        content: 'AWS Certified Solutions Architect (Associate)\nScrum Alliance Certified ScrumMaster (CSM)\nAdvanced Data Structures (Stanford Online)' },
+      { _id: 2, title: 'Languages Spoken',
+        content: 'English (Fluent)\nHindi (Native)\nMarathi (Native)' }
+    ] : [
+      { _id: 1, title: 'Certifications & Awards',
+        content: 'AWS Certified Solutions Architect – Professional (2021)\nGoogle Cloud Professional Data Engineer (2022)\nEmployee of the Quarter — TechVision Inc. (Q3 2023)\nHackathon Winner – Global AI Hackathon 2022 (1st Place out of 340 teams)' },
+      { _id: 2, title: 'Languages & Interests',
+        content: 'Languages: English (Native), Mandarin (Fluent), Spanish (Conversational)\nInterests: Open-source contribution, technical blogging, competitive programming, hiking' }
+    ];
+    fm._counters.custom = this.state.customSections.length;
 
     // Rebuild form UI + preview
     window.FormManager.populateForm();
